@@ -20,9 +20,11 @@
 name: Build and Publish Container Image for Hyper Operating System developers
 on:
   push:
+    # mainブランチに, scripts/mkcross-elf.shをpushしたら実行
     branches:
-      # mainブランチにpushしたら実行
       - main
+    paths:
+      - 'scripts/mkcross-elf.sh'
 jobs:
   build_and_push:
     # Ubuntu環境のVMでイメージを構築
