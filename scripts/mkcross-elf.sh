@@ -1,8 +1,11 @@
 #!/bin/bash
 
+## -- 動作設定関連変数の開始 --
+
+# コンパイル対象CPU
 #TARGET_CPUS="i386 riscv32 riscv64 mips mipsel arm armhw sh2 h8300 microblaze"
 TARGET_CPUS="armhw"
-targets=(`echo ${TARGET_CPUS}`)
+
 
 #
 #アーカイブ展開時のディレクトリ名
@@ -87,6 +90,8 @@ declare -A cpu_target_names=(
     )
 
 
+## -- 動作設定関連変数のおわり --
+
 #
 #インストール先
 #
@@ -100,7 +105,13 @@ DEVLOPER_NAME="hos"
 # Hos開発ディレクトリ
 DEVLOPER_HOME="/home/${DEVLOPER_NAME}"
 
+# コンパイル対象CPUの配列
+targets=(`echo ${TARGET_CPUS}`)
+
+# コンパイル作業のトップディレクトリ
 TOP_DIR=`pwd`
+
+# ダウンロードアーカイブ格納ディレクトリ
 DOWNLOADS_DIR=${TOP_DIR}/downloads
 
 #
