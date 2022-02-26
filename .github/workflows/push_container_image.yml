@@ -2,18 +2,18 @@
 # -*- coding:utf-8 mode: yaml-mode -*-
 #
 name: Build and Publish Container Image
-on:
-  push:
-    branches:
-      # mainブランチにpushしたら実行
-      - main
+# on:
+#   push:
+#     branches:
+#       # mainブランチにpushしたら実行
+#       - main
 jobs:
   build_and_push:
     # Ubuntu環境のVMでイメージを構築
     runs-on: ubuntu-latest
     env:
       # コンテナイメージ名
-      IMAGE_NAME: riscv-cross-compiler
+      IMAGE_NAME: crosstool-for-hos
     steps:
       # 本リポジトリをチェックアウトする
       - name: checkout

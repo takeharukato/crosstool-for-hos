@@ -59,6 +59,7 @@ declare -A qemu_targets=(
     ["mips"]="mips-softmmu,mips-linux-user"
     ["mipsel"]="mipsel-softmmu,mipsel-linux-user"
     ["arm"]="arm-softmmu,arm-linux-user"
+    ["armhw"]="arm-softmmu,arm-linux-user"
     ["microblaze"]="microblaze-softmmu,microblaze-linux-user"
     )
 
@@ -184,7 +185,6 @@ download_archives(){
 	for cpu in "${targets[@]}"
 	do
 	    tool_key="${cpu}-${tool}"
-	    echo "Check ${tool_key}"
 	    if [ "x${tool_names[${tool_key}]}" != "x" ]; then
 		archive_key="${tool_names[${tool_key}]}"
 		url="${tool_urls[${archive_key}]}"
@@ -502,6 +502,345 @@ cross_newlib(){
 
 }
 
+#
+# cross_gcc_elf_final ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+#
+cross_gcc_elf_final(){
+    local cpu="$1"
+    local target="$2"
+    local prefix="$3"
+    local src_dir="$4/gcc_elf_final"
+    local build_dir="$5/gcc_elf_final"
+    local sys_root="${prefix}/rfs"
+    local key="gcc"
+    local rmfile
+    local tool
+    local archive
+
+    echo "@@@ gcc_elf @@@"
+    echo "Prefix:${prefix}"
+    echo "target:${target}"
+    echo "Sysroot:${sys_root}"
+    echo "BuildDir:${build_dir}"
+    echo "SourceDir:${src_dir}"
+
+    tool=`get_tool_name ${cpu} ${key}`
+    archive=`get_archive_name ${cpu} ${key}`
+
+    if [ "x${archive}" = "x" ]; then
+	echo "No ${key} for ${cpu}"
+	return 1
+    fi
+
+    mkdir -p "${sys_root}"
+    if [ -d "${src_dir}" ]; then
+	rm -fr "${src_dir}"
+    fi
+    mkdir -p "${src_dir}"
+
+    if [ -d "${build_dir}" ]; then
+	rm -fr "${build_dir}"
+    fi
+    mkdir -p "${build_dir}"
+
+    pushd "${src_dir}"
+    tar xf ${DOWNLOADS_DIR}/${archive}
+    popd
+
+    pushd "${build_dir}"
+    #
+    # configureの設定
+    #
+    #--prefix="${prefix}"
+    #          ${prefix}配下にインストールする
+    #--target="${target}"
+    #          ターゲット環境向けのコードを生成するコンパイラを構築する
+    #--with-local-prefix="${prefix}/${target}"
+    #          gcc内部で使用するファイルを"${prefix}/${target}"に格納する
+    #--with-sysroot="${sys_root}"
+    #          コンパイラの実行時にターゲットのルートファイルシステムを優先してヘッダや
+    #          ライブラリを探査する
+    #--enable-languages=c,c++,lto
+    #          c/c++/ltoを生成
+    #--disable-bootstrap
+    #          ビルド環境もgccを使用することから, 時間削減のためビルド環境とホスト環境が
+    #          同一CPUの場合でも, 3stageコンパイルを無効にする
+    #--disable-werror
+    #         警告をエラーと見なさない
+    #--disable-shared
+    #          gccの共有ランタイムライブラリを生成しない
+    #--disable-multilib
+    #          バイアーキ(32/64bit両対応)版gccの生成を行わない。
+    #--with-newlib
+    #          libcを自動リンクしないコンパイラを生成する
+    #--enable-tls
+    #          Thread Local Storage機能を使用する
+    #--disable-threads
+    #          ターゲット用のlibpthreadがないためスレッドライブラリに対応しない
+    #--disable-libmpx
+    #           MPX(Memory Protection Extensions)ライブラリをビルドしない
+    #--disable-libgomp
+    #           GNU OpenMPライブラリを生成しない
+    #--disable-libsanitizer
+    #           libsanitizerを生成しない
+    #--disable-nls
+    #         コンパイル時間を短縮するためNative Language Supportを無効化する
+    ${src_dir}/${tool}/configure                          \
+	      --prefix="${prefix}"                            \
+	      --target="${target}"                            \
+	      --with-local-prefix="${prefix}/${target}"       \
+	      --disable-shared                                \
+	      --disable-werror                                \
+	      --disable-nls                                   \
+	--enable-languages="c,c++,lto"                       \
+	--disable-bootstrap                                  \
+	--disable-multilib                                   \
+	--with-newlib                                        \
+	--disable-threads                                    \
+	--disable-libatomic                                  \
+	--disable-libitm                                     \
+	--disable-libvtv                                     \
+	--disable-libcilkrts                                 \
+	--disable-libmpx                                     \
+	--disable-libgomp                                    \
+	--disable-libsanitizer                                \
+	--enable-decimal-float                               \
+        --enable-libquadmath                                 \
+	--enable-libmudflap                                  \
+	--enable-libssp                                      \
+	--enable-tls                                         \
+	--with-sysroot="${sys_root}"
+
+    make -j`nproc`
+    make install
+
+    popd
+
+
+    #
+    #.laファイルを削除する
+    #
+    echo "Remove .la files"
+
+    find ${prefix} -name '*.la'|while read rmfile
+    do
+	echo "Remove ${rmfile}"
+	rm -f ${rmfile}
+    done
+
+    #
+    #ホストのgccとの混乱を避けるため以下を削除
+    #
+    echo "Remove cpp gcc gcc-ar gcc-nm gcc-ranlib gcov ${target}-cc on ${prefix}/bin"
+    for rmfile in cpp gcc gcc-ar gcc-nm gcc-ranlib gcov ${target}-cc
+    do
+	if [ -f "${prefix}/bin/${rmfile}" ]; then
+	    rm -f "${prefix}/bin/${rmfile}"
+	fi
+    done
+
+    #
+    # クロスコンパイラへのリンクを張る
+    #
+    rm -f ${prefix}/bin/${target}-cc
+    ln -sf ${target}-gcc ${prefix}/bin/${target}-cc
+
+}
+
+#
+# cross_gdb ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+#
+cross_gdb(){
+    local cpu="$1"
+    local target="$2"
+    local prefix="$3"
+    local src_dir="$4/gdb"
+    local build_dir="$5/gdb"
+    local sys_root="${prefix}/rfs"
+    local key="gdb"
+    local python_path
+    local python_arg
+    local rmfile
+    local tool
+    local archive
+
+    echo "@@@ gdb @@@"
+    echo "Prefix:${prefix}"
+    echo "target:${target}"
+    echo "Sysroot:${sys_root}"
+    echo "BuildDir:${build_dir}"
+    echo "SourceDir:${src_dir}"
+
+    tool=`get_tool_name ${cpu} ${key}`
+    archive=`get_archive_name ${cpu} ${key}`
+
+    if [ "x${archive}" = "x" ]; then
+	echo "No ${key} for ${cpu}"
+	return 1
+    fi
+
+    mkdir -p "${sys_root}"
+    if [ -d "${src_dir}" ]; then
+	rm -fr "${src_dir}"
+    fi
+    mkdir -p "${src_dir}"
+
+    if [ -d "${build_dir}" ]; then
+	rm -fr "${build_dir}"
+    fi
+    mkdir -p "${build_dir}"
+
+    #
+    # python連携
+    #
+    python_path=`which python`
+    if [ "none${python_path}" = "none" ]; then
+	python_path=`which python3`
+	if [ "none${python_path}" = "none" ]; then
+	    python_path=`which python2`
+	fi
+    fi
+
+    if [ "none${python_path}" = "none" ]; then
+	python_path='none'
+    fi
+
+    if [ "${python_path}" != "none" ]; then
+	echo "Python is installed on ${python_path}"
+	python_arg="--with-python=${python_path}"
+    else
+	python_arg=""
+    fi
+
+    case ${TARGET_CPU} in
+	h8300|v850)
+	    python_arg=""
+	    ;;
+    esac
+
+    pushd "${src_dir}"
+    tar xf ${DOWNLOADS_DIR}/${archive}
+    popd
+
+    #
+    # configureの設定
+    #
+    #--prefix="${prefix}"
+    #          ${prefix}配下にインストールする
+    #--target="${target}"
+    #          ターゲット環境向けのコードを生成するコンパイラを構築する
+    #--with-local-prefix="${prefix}/${target}"
+    #          gdb内部で使用するファイルを"${prefix}/${target}"に格納する
+    #${python_arg}
+    #          pythonスクリプトによるデバッグ支援機能を有効にする
+    #--disable-werror
+    #         警告をエラーと見なさない
+    #--disable-nls
+    #         コンパイル時間を短縮するためNative Language Supportを無効化する
+    #
+    pushd "${build_dir}"
+    ${src_dir}/${tool}/configure                              \
+	      --prefix="${prefix}"                            \
+	      --target="${target}"                            \
+	      --with-local-prefix="${prefix}/${target}"       \
+	      ${python_arg}                                   \
+	      --disable-werror                                \
+	      --disable-nls                                   \
+
+    make -j`nproc`
+    make install
+
+    popd
+
+
+    #
+    #.laファイルを削除する
+    #
+    echo "Remove .la files"
+
+    find ${prefix} -name '*.la'|while read rmfile
+    do
+	echo "Remove ${rmfile}"
+	rm -f ${rmfile}
+    done
+}
+
+#
+# cross_gdb ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+#
+build_qemu(){
+    local cpu="$1"
+    local target="$2"
+    local prefix="$3"
+    local src_dir="$4/qemu"
+    local build_dir="$5/qemu"
+    local sys_root="${prefix}/rfs"
+    local qemu_target_list
+    local key="qemu"
+    local tool
+    local archive
+
+    qemu_target_list="${qemu_targets[${cpu}]}"
+
+    if [ "x${qemu_target_list}" = "x" ]; then
+	echo "No ${key} for ${cpu}"
+	return 1
+    fi
+
+    echo "@@@ qemu @@@"
+    echo "Prefix:${prefix}"
+    echo "target:${target}"
+    echo "Sysroot:${sys_root}"
+    echo "BuildDir:${build_dir}"
+    echo "SourceDir:${src_dir}"
+    echo "QEmu targets: ${qemu_target_list}"
+
+    tool=`get_tool_name ${cpu} ${key}`
+    archive=`get_archive_name ${cpu} ${key}`
+
+    if [ "x${archive}" = "x" ]; then
+	echo "No ${key} for ${cpu}"
+	return 1
+    fi
+
+    mkdir -p "${sys_root}"
+    if [ -d "${src_dir}" ]; then
+	rm -fr "${src_dir}"
+    fi
+    mkdir -p "${src_dir}"
+
+    if [ -d "${build_dir}" ]; then
+	rm -fr "${build_dir}"
+    fi
+    mkdir -p "${build_dir}"
+
+    pushd "${src_dir}"
+    tar xf ${DOWNLOADS_DIR}/${archive}
+    popd
+
+    pushd "${build_dir}"
+    ${src_dir}/${tool}/configure                              \
+	      --prefix="${prefix}"                            \
+	      --target-list="${qemu_target_list}"             \
+	      --enable-user                                   \
+	      --enable-linux-user                             \
+	      --interp-prefix=${sys_root}                     \
+	      --enable-system                                 \
+	      --enable-tcg-interpreter                        \
+	      --enable-modules                                \
+	      --enable-debug-tcg                              \
+	      --enable-debug-info                             \
+	      --enable-membarrier                             \
+	      --enable-profiler                               \
+	      --disable-pie                                   \
+	      --disable-werror
+
+    make -j`nproc`
+    make install
+
+    popd
+}
+
 main(){
     local cpu
     local prefix
@@ -538,9 +877,14 @@ main(){
 
 	export PATH="${prefix}/bin:${orig_path}"
 
-	cross_binutils "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
-	cross_gcc_stage1 "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
-	cross_newlib "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	# cross_binutils "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	# cross_gcc_stage1 "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	# cross_newlib "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	# cross_gcc_elf_final "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	# cross_gdb "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+
+	build_qemu  "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+
 	export PATH="${orig_path}"
     done
 }

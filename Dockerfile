@@ -12,8 +12,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 #
 # 基本コマンド
 RUN apt update; \
-    apt install -y language-pack-ja-base language-pack-ja; \
-    git ninja-build \
+    apt install -y language-pack-ja-base language-pack-ja \
+    git ninja-build python3 python3-dev swig \
     autoconf automake autotools-dev curl python3 libmpc-dev \
     libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf \
     libtool patchutils bc zlib1g-dev libexpat-dev \
@@ -28,10 +28,10 @@ RUN apt update; \
     libsasl2-dev libpmem-dev libudev-dev libcapstone-dev librdmacm-dev \
     libibverbs-dev libibumad-dev libvirt-dev libffi-dev libbpfcc-dev \
     libdaxctl-dev ; \
-    mkdir -p /home/cross/workdir ; \
+    mkdir -p /home/cross/workdir ;
 
 # クロスコンパイラ作成スクリプトをコピー
-COPY scripts /home/cross
+COPY scripts/mkcross-elf.sh /home/cross
 # コンパイル開始
 RUN  cd /home/cross/workdir ; \
-    ../scripts/mkcross-elf.sh ;
+     ../mkcross-elf.sh
