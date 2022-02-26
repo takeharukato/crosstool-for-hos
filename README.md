@@ -1,19 +1,21 @@
-# elf-cross-compilers
-Cross compile environment
+# crosstool-for-hos
 
-gccクロスコンパイラをインストールしたLinux環境(Ubuntu)のコンテナイメージです。
+gcc ELFバイナリ向けクロスコンパイラをインストールしたLinux環境(Ubuntu)
+のコンテナイメージです。
+
+Hyper Operating Systemの開発・試験に使用することを想定しています。
 
 # イメージ取得方法
 
 以下のコマンドを実行して, コンパイル環境のコンテナイメージを取得します。
 
 ```
-docker pull ghcr.io/takeharukato/elf-cross-compilers:latest
+docker pull ghcr.io/takeharukato/crosstool-for-hos:latest
 ```
 
 実行例:
 ```
-$ docker pull ghcr.io/takeharukato/elf-cross-compilers:latest
+$ docker pull ghcr.io/takeharukato/crosstool-for-hos:latest
 $
 ```
 
@@ -36,29 +38,29 @@ $ docker images
 以下のコマンドを実行することでコンテナイメージ内に入ることができます。
 
 ```
-docker run -it ghcr.io/takeharukato/elf-cross-compilers:latest
+docker run -it ghcr.io/takeharukato/crosstool-for-hos:latest
 ```
 
-ホストの作業ディレクトリ(以下の例では, カレントディレクトリにあるwork
-を/home/workにマウントします) をマウントする場合は, 以下を実行します。
+ホストの作業ディレクトリをマウントする場合は, 以下を実行します。
 
 ```
-docker run -v `pwd`/work:/home/work -it ghcr.io/takeharukato/elf-cross-compilers:latest
+docker run -v /home/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos:latest
 ```
+
+以下の例では, ホストの/home/hos/shareをコンテナから使用できるようにマ
+ウントします。
 
 実行例:
 
 ```
-$ ls work
-localfile.txt
-$ docker run -v
-`pwd`/work:/home/work -it ghcr.io/takeharukato/elf-cross-compilers:latest
+$ docker run -v /home/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos:latest
 ```
 
 # HOS開発者ユーザ
 
 Hyper Operating System の開発作業に使うように開発者ユーザ`hos`を
 作ってあります。
+
 hosユーザの`.bashrc`に開発用のシェル初期化スクリプトの読み込み処理を追
 加していますので, コンテナ内に(docker run などで)入った後, `su - hos`を実行することで
 クロスコンパイラを使用するためのEnvironment Modulesファイルが利用でき
