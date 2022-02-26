@@ -934,6 +934,7 @@ set ${target_var}_gcc_path "${prefix}/bin"
 
 # environmnet variables
 setenv CROSS_COMPILE ${target}-
+setenv GCC_ARCH      ${target}-
 setenv GDB_COMMAND   ${target}-gdb
 
 ${qemu_line}
