@@ -5,7 +5,7 @@ TARGET_CPUS="armhw"
 targets=(`echo ${TARGET_CPUS}`)
 
 #
-#
+#アーカイブ展開時のディレクトリ名
 #
 declare -A tool_names=(
     ["binutils"]="binutils-2.37"
@@ -64,6 +64,20 @@ declare -A qemu_targets=(
     )
 
 #
+# QEmuのCPU名
+#
+declare -A qemu_cpus=(
+    ["i386"]="i386"
+    ["riscv32"]="riscv32"
+    ["riscv64"]="riscv64"
+    ["mips"]="mips"
+    ["mipsel"]="mipsel"
+    ["arm"]="arm"
+    ["armhw"]="arm"
+    ["microblaze"]="microblaze"
+    )
+
+#
 # ターゲット名
 #
 declare -A cpu_target_names=(
@@ -77,6 +91,14 @@ declare -A cpu_target_names=(
 #インストール先
 #
 CROSS_PREFIX="/opt/hos/cross"
+# lmodのモジュールファイル
+LMOD_MODULE_DIR="${CROSS_PREFIX}/lmod/modules"
+# シェルの初期化ファイル
+SHELL_INIT_DIR="${CROSS_PREFIX}/etc/shell/init"
+# Hos開発ユーザ名
+DEVLOPER_NAME="hos"
+# Hos開発ディレクトリ
+DEVLOPER_HOME="/home/${DEVLOPER_NAME}"
 
 TOP_DIR=`pwd`
 DOWNLOADS_DIR=${TOP_DIR}/downloads
@@ -766,7 +788,7 @@ cross_gdb(){
 }
 
 #
-# cross_gdb ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+# build_qemu ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
 #
 build_qemu(){
     local cpu="$1"
@@ -841,6 +863,114 @@ build_qemu(){
     popd
 }
 
+#
+# generate_module_file ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+#
+generate_module_file(){
+    local cpu="$1"
+    local target="$2"
+    local prefix="$3"
+    local key="lmod"
+    local mod_file
+    local target_var
+    local qemu_cpu
+    local qemu_line
+
+    target_var=`echo ${target}|sed -e 's|-|_|g'`
+
+    qemu_cpu="${qemu_cpus[${cpu}]}"
+    qemu_line="# No QEmu system simulator for ${target}"
+    if [ "x${qemu_cpu}" != "x" ]; then
+	qemu_line="setenv QEMU	   qemu-system-${qemu_cpu}"
+    fi
+
+    echo "@@@ Environment Module File @@@"
+    echo "target:${target}"
+    echo "Sysroot:${sys_root}"
+    echo "BuildDir:${build_dir}"
+    echo "SourceDir:${src_dir}"
+    if [ "x${qemu_cpu}" != "x" ]; then
+	echo "QEmuCPUName:${qemu_cpu}"
+    fi
+    echo "var: ${target_var}"
+
+    mod_file=`echo "${target}"| tr '[:lower:]' '[:upper:]'`
+    mod_file="${mod_file}-GCC"
+    echo "Generate ${mod_file} ..."
+
+    mkdir -p ${LMOD_MODULE_DIR}
+
+    #
+    # Tcl形式のEnvironment Moduleファイルを生成
+    #
+    cat <<EOF > "${LMOD_MODULE_DIR}/${mod_file}"
+#%Module1.0
+##
+## gcc toolchain for ${target}
+##
+## Note: This is generated automatically.
+##
+
+proc ModulesHelp { } {
+        puts stderr "gcc toolchain for ${target} Setting \n"
+}
+#
+module-whatis   "gcc toolchain for ${target} Setting"
+
+# for Tcl script only
+set ${target_var}_gcc_path "${prefix}/bin"
+
+# environmnet variables
+setenv CROSS_COMPILE ${target}-
+setenv GDB_COMMAND   ${target}-gdb
+
+${qemu_line}
+
+# append pathes
+prepend-path    PATH    \${${target_var}_gcc_path}
+
+EOF
+}
+
+#
+#generate_shell_init
+# 開発環境初期化スクリプトを導入する
+#
+generate_shell_init(){
+    local shell
+
+    mkdir -p ${SHELL_INIT_DIR}
+
+    #
+    # bash用初期化スクリプト
+    #
+    cat <<EOF > "${SHELL_INIT_DIR}/bash"
+#
+# Cross compiler setup for bash
+#
+if [ -f /etc/profile.d/lmod.sh ];then
+   source /etc/profile.d/lmod.sh
+   module use --append ${LMOD_MODULE_DIR}
+fi
+EOF
+
+    #
+    # zsh用初期化スクリプト
+    #
+    cat <<EOF > "${SHELL_INIT_DIR}/zsh"
+#
+# Cross compiler setup for zsh
+#
+if [ -f /etc/profile.d/lmod.sh ]; then
+   source /etc/profile.d/lmod.sh
+   module use --append ${LMOD_MODULE_DIR}
+fi
+EOF
+
+    ls -l ${SHELL_INIT_DIR}
+
+}
+
 main(){
     local cpu
     local prefix
@@ -852,7 +982,10 @@ main(){
 
     orig_path="${PATH}"
 
+    mkdir -p ${LMOD_MODULE_DIR}
+    mkdir -p ${SHELL_INIT_DIR}
     mkdir -p ${DOWNLOADS_DIR}
+
     download_archives
 
     for cpu in "${targets[@]}"
@@ -877,16 +1010,54 @@ main(){
 
 	export PATH="${prefix}/bin:${orig_path}"
 
-	# cross_binutils "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
-	# cross_gcc_stage1 "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
-	# cross_newlib "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
-	# cross_gcc_elf_final "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
-	# cross_gdb "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	cross_binutils \
+	     "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	cross_gcc_stage1 \
+	     "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	cross_newlib "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	cross_gcc_elf_final \
+	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	cross_gdb "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
 
 	build_qemu  "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	generate_module_file \
+	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
 
 	export PATH="${orig_path}"
     done
+
+    #
+    #シェルの初期化ファイルを作成する
+    #
+    generate_shell_init
+
+    #
+    # 開発者ユーザを作成する
+    #
+    echo "@@@ Create User @@@"
+    adduser                                             \
+	    -q                                          \
+	    --home "${DEVLOPER_HOME}"                   \
+	    --gecos "Hyper Operating System Developer"  \
+	    --disabled-login                            \
+	    "${DEVLOPER_NAME}"
+    usermod -aG sudo "${DEVLOPER_NAME}"
+
+    #
+    # .bashrcを更新する
+    #
+    if [ -f ${DEVLOPER_HOME}/.bashrc ]; then
+	cat <<EOF >> ${DEVLOPER_HOME}/.bashrc
+#
+# HOS development environment
+#
+if [ -f ${SHELL_INIT_DIR}/bash ]; then
+   source ${SHELL_INIT_DIR}/bash
+fi
+EOF
+    fi
+
+    echo "Complete"
 }
 
 main $@

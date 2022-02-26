@@ -27,11 +27,13 @@ RUN apt update; \
     libtasn1-dev google-perftools libvirglrenderer-dev multipath-tools \
     libsasl2-dev libpmem-dev libudev-dev libcapstone-dev librdmacm-dev \
     libibverbs-dev libibumad-dev libvirt-dev libffi-dev libbpfcc-dev \
-    libdaxctl-dev ; \
-    mkdir -p /home/cross/workdir ;
+    libdaxctl-dev \
+    lmod ; \
+    mkdir -p /home/cross/mkcross/workdir ;
 
 # クロスコンパイラ作成スクリプトをコピー
-COPY scripts/mkcross-elf.sh /home/cross
-# コンパイル開始
-RUN  cd /home/cross/workdir ; \
-     ../mkcross-elf.sh
+COPY scripts/mkcross-elf.sh /home/cross/mkcross
+# コンパイル環境生成
+RUN  cd /home/cross/mkcross/workdir ; \
+    ../mkcross-elf.sh;                \
+    rm -fr /home/cross
