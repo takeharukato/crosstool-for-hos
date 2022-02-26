@@ -3,8 +3,9 @@
 ## -- 動作設定関連変数の開始 --
 
 # コンパイル対象CPU
-#TARGET_CPUS="i386 riscv32 riscv64 mips mipsel arm armhw sh2 h8300 microblaze"
-TARGET_CPUS="armhw"
+TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 armhw microblaze"
+#TARGET_CPUS="armhw sh2 h8300 i386 riscv32 riscv64 mips mipsel arm microblaze"
+#TARGET_CPUS="armhw"
 
 
 #
