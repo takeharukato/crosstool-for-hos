@@ -41,38 +41,75 @@ $ docker images
 docker run -it ghcr.io/takeharukato/crosstool-for-hos:latest
 ```
 
-ホストの作業ディレクトリをマウントする場合は, 以下を実行します。
+## ホスト環境のディレクトリへのアクセス方法
+
+ホストの作業ディレクトリをマウントし, ホストとファイルを共有する場合は,
+以下を実行します。
 
 ```
-docker run -v /home/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos:latest
+docker run -v ホストのディレクトリ:コンテナ内からアクセスする際のディレクトリ -it ghcr.io/takeharukato/crosstool-for-hos:latest
 ```
 
-以下の例では, ホストの/home/hos/shareをコンテナから使用できるようにマ
-ウントします。
+以下の例では, ホストのホームディレクトリ直下の
+hos/share(`${HOME}/hos/share`)ディレクトリをコンテナから使用できるよう
+にマウントします。
+
+ホストの`${HOME}/hos/share`ディレクトリにHOSのソースコードを配置して置
+くことで, コンテナ内のクロスコンパイル環境を利用して,
+`/home/hos/share`配下のソースコードを編集することで, ホスト上の他のディ
+レクトリに影響を与えること無くクロス開発を行うことができます。
 
 実行例:
-
 ```
-$ docker run -v /home/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos:latest
+$ docker run -v ${HOME}/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos:latest
 ```
 
-# HOS開発者ユーザ
+# HOS開発者ユーザについて
+
+## HOS開発者ユーザ`hos`を使用した開発
 
 Hyper Operating System の開発作業に使うように開発者ユーザ`hos`を
 作ってあります。
 
-hosユーザの`.bashrc`に開発用のシェル初期化スクリプトの読み込み処理を追
-加していますので, コンテナ内に(docker run などで)入った後, `su - hos`を実行することで
-クロスコンパイラを使用するためのEnvironment Modulesファイルが利用でき
-るようになります.
+コンテナ内に(docker run などで)入った後, `su - hos`を実行することで,
+`hos`ユーザ権限での作業が可能になります。
 
-モジュールをロードすることで以下の設定が行われます。
+ユーザ`hos`のホームディレクトリは, `/home/hos`になっています。
+ホスト環境のディレクトリを`/home/hos`配下にマウントすることで,
+ホスト環境とファイルを共有しながら作業を行うことが可能です(`ホスト環境
+のディレクトリへのアクセス方法`参照)。
+
+## `hos`ユーザの.bashrcについて
+
+hosユーザの`.bashrc`に開発用のシェル初期化スクリプトの読み込み処理を追
+加しています。
+
+`/home/hos/.bashrc`をsourceコマンドで読込むことで, クロスコンパイラを
+使用するためのEnvironment Modulesファイルが利用できるようになります。
+
+なお, 前述の手順で, `su - hos`を実行すると, `/home/hos/.bashrc`が自動
+的に読み込まれます。
+
+## lmodを用いたコンパイル環境の切り替え
+
+hosユーザの`.bashrc`から読み込まれる開発用のシェル初期化スクリプト中で,
+Lmod( https://lmod.readthedocs.io/en/latest/ )の初期化処理が行われます。
+
+`/opt/hos/cross/lmod/modules`配下にクロスコンパイラを利用するための
+Lmodのモジュールが格納されており, これらのモジュールを`module load`コ
+マンドによりロードすることでクロスコンパイル用の環境変数が設定されます。
+
+環境変数の設定を解除する場合は, `module unload`コマンドを実行します。
+
+## モジュールによって設定される環境変数
+
+`/opt/hos/cross/lmod/modules`配下のモジュールによって, 以下の環境変数
+が設定されます。
 
 * PATH クロスコンパイラへのパスが追加されます
 * QEMU QEmuのシステムシミュレータへのコマンド名が設定されます
 * CROSS_COMPILE クロスコンパイラのプレフィクス名が設定されます
 * GDB_COMMAND クロスgdbのコマンド名が設定されます。
-
 
 実行例:
 ```
@@ -241,4 +278,25 @@ tripletを指定するために導入しています。
 arm-eabihfに設定します。
 ```
     ["armhw-elf"]="arm-eabihf"
+```
+
+## 付録: EmacsのGrand Unified Debugger modeでデバッグするための設定
+
+環境変数``GDB_COMMAND`に設定されているクロスのgdbを用いて, Emacsの
+Grand Unified Debugger modeでデバッグする際のデバッガ名を設定するため
+の`.emacs`を以下に記載します。
+
+```
+;;
+;; Grand Unified Debugger mode
+;;
+(load-library "gud") ;;
+(setq cross-gdb-command-name (if (not (setq cross-gdb-env (getenv "GDB_COMMAND"))) "gdb" cross-gdb-env)) ;;コマンド
+(setq gdb-args-list (cdr (if (boundp 'gud-gdb-command-name) (split-string gud-gdb-command-name)
+                           (if (boundp 'gud-gud-gdb-command-name)
+                               (split-string gud-gud-gdb-command-name))))) ;; 引数のリスト
+(if (boundp 'gud-gdb-command-name)
+    (custom-set-variables '(gud-gdb-command-name (concat cross-gdb-command-name " --fullname")))
+  (custom-set-variables '(gud-gud-gdb-command-name
+                          (concat cross-gdb-command-name " --fullname"))) )
 ```
