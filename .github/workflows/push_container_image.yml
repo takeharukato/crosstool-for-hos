@@ -27,14 +27,14 @@ on:
       - 'scripts/mkcross-elf.sh'
       - '.github/workflows/push_container_image.yml'
 jobs:
-  riscv32_image:
+  riscv_image:
     # Ubuntu環境のVMでイメージを構築
     runs-on: ubuntu-latest
     env:
       # CPU
-      TARGET_CPUS: riscv32
+      TARGET_CPUS: "riscv32 riscv64"
       # イメージ名
-      IMAGE_NAME: crosstool-for-hos-riscv32
+      IMAGE_NAME: crosstool-for-hos-riscv
     steps:
       # 本リポジトリをチェックアウトする
       - name: checkout
@@ -64,42 +64,42 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
 
-  # riscv64_image:
-  #   # Ubuntu環境のVMでイメージを構築
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     # CPU
-  #     TARGET_CPUS: riscv64
-  #     # イメージ名
-  #     IMAGE_NAME: crosstool-for-hos-riscv64
-  #   steps:
-  #     # 本リポジトリをチェックアウトする
-  #     - name: checkout
-  #       uses: actions/checkout@v2
-  #     # コンテナイメージを構築するための準備を行う
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v1
-  #     # GitHub Container Registryにログインする
-  #     - name: Login to GitHub Container Registry
-  #       uses: docker/login-action@v1
-  #       with:
-  #         # コンテナイメージレジストリにGitHub Container Registryを使用
-  #         registry: ghcr.io
-  #         # ユーザ名は本リポジトリのオーナのユーザ名を使用
-  #         username: ${{ github.repository_owner }}
-  #         # 本リポジトリの`CR_PAT`シークレットを使用してログインする
-  #         password: ${{ secrets.CR_PAT }}
-  #     # コンテナイメージを作成し, GitHub Container Registryに登録する
-  #     - name: Build and push
-  #       uses: docker/build-push-action@v2
-  #       with:
-  #         # リポジトリのトップディレクトリにDockerfileがあることを指定
-  #         context: .
-  #         # イメージ構築後にレジストリへの登録を行う
-  #         push: true
-  #         # タグ名を設定する
-  #         tags: |
-  #           ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+  sh2_image:
+    # Ubuntu環境のVMでイメージを構築
+    runs-on: ubuntu-latest
+    env:
+      # CPU
+      TARGET_CPUS: sh2
+      # イメージ名
+      IMAGE_NAME: crosstool-for-hos-sh2
+    steps:
+      # 本リポジトリをチェックアウトする
+      - name: checkout
+        uses: actions/checkout@v2
+      # コンテナイメージを構築するための準備を行う
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # GitHub Container Registryにログインする
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          # コンテナイメージレジストリにGitHub Container Registryを使用
+          registry: ghcr.io
+          # ユーザ名は本リポジトリのオーナのユーザ名を使用
+          username: ${{ github.repository_owner }}
+          # 本リポジトリの`CR_PAT`シークレットを使用してログインする
+          password: ${{ secrets.CR_PAT }}
+      # コンテナイメージを作成し, GitHub Container Registryに登録する
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          # リポジトリのトップディレクトリにDockerfileがあることを指定
+          context: .
+          # イメージ構築後にレジストリへの登録を行う
+          push: true
+          # タグ名を設定する
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
 
   h8300_image:
     # Ubuntu環境のVMでイメージを構築
@@ -109,6 +109,155 @@ jobs:
       TARGET_CPUS: h8300
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-h8300
+    steps:
+      # 本リポジトリをチェックアウトする
+      - name: checkout
+        uses: actions/checkout@v2
+      # コンテナイメージを構築するための準備を行う
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # GitHub Container Registryにログインする
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          # コンテナイメージレジストリにGitHub Container Registryを使用
+          registry: ghcr.io
+          # ユーザ名は本リポジトリのオーナのユーザ名を使用
+          username: ${{ github.repository_owner }}
+          # 本リポジトリの`CR_PAT`シークレットを使用してログインする
+          password: ${{ secrets.CR_PAT }}
+      # コンテナイメージを作成し, GitHub Container Registryに登録する
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          # リポジトリのトップディレクトリにDockerfileがあることを指定
+          context: .
+          # イメージ構築後にレジストリへの登録を行う
+          push: true
+          # タグ名を設定する
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
+  i386_image:
+    # Ubuntu環境のVMでイメージを構築
+    runs-on: ubuntu-latest
+    env:
+      # CPU
+      TARGET_CPUS: i386
+      # イメージ名
+      IMAGE_NAME: crosstool-for-hos-i386
+    steps:
+      # 本リポジトリをチェックアウトする
+      - name: checkout
+        uses: actions/checkout@v2
+      # コンテナイメージを構築するための準備を行う
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # GitHub Container Registryにログインする
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          # コンテナイメージレジストリにGitHub Container Registryを使用
+          registry: ghcr.io
+          # ユーザ名は本リポジトリのオーナのユーザ名を使用
+          username: ${{ github.repository_owner }}
+          # 本リポジトリの`CR_PAT`シークレットを使用してログインする
+          password: ${{ secrets.CR_PAT }}
+      # コンテナイメージを作成し, GitHub Container Registryに登録する
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          # リポジトリのトップディレクトリにDockerfileがあることを指定
+          context: .
+          # イメージ構築後にレジストリへの登録を行う
+          push: true
+          # タグ名を設定する
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
+  mips_image:
+    # Ubuntu環境のVMでイメージを構築
+    runs-on: ubuntu-latest
+    env:
+      # CPU
+      TARGET_CPUS: "mips mipsel"
+      # イメージ名
+      IMAGE_NAME: crosstool-for-hos-mips
+    steps:
+      # 本リポジトリをチェックアウトする
+      - name: checkout
+        uses: actions/checkout@v2
+      # コンテナイメージを構築するための準備を行う
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # GitHub Container Registryにログインする
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          # コンテナイメージレジストリにGitHub Container Registryを使用
+          registry: ghcr.io
+          # ユーザ名は本リポジトリのオーナのユーザ名を使用
+          username: ${{ github.repository_owner }}
+          # 本リポジトリの`CR_PAT`シークレットを使用してログインする
+          password: ${{ secrets.CR_PAT }}
+      # コンテナイメージを作成し, GitHub Container Registryに登録する
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          # リポジトリのトップディレクトリにDockerfileがあることを指定
+          context: .
+          # イメージ構築後にレジストリへの登録を行う
+          push: true
+          # タグ名を設定する
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
+  microblaze_image:
+    # Ubuntu環境のVMでイメージを構築
+    runs-on: ubuntu-latest
+    env:
+      # CPU
+      TARGET_CPUS: microblaze
+      # イメージ名
+      IMAGE_NAME: crosstool-for-hos-microblaze
+    steps:
+      # 本リポジトリをチェックアウトする
+      - name: checkout
+        uses: actions/checkout@v2
+      # コンテナイメージを構築するための準備を行う
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # GitHub Container Registryにログインする
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          # コンテナイメージレジストリにGitHub Container Registryを使用
+          registry: ghcr.io
+          # ユーザ名は本リポジトリのオーナのユーザ名を使用
+          username: ${{ github.repository_owner }}
+          # 本リポジトリの`CR_PAT`シークレットを使用してログインする
+          password: ${{ secrets.CR_PAT }}
+      # コンテナイメージを作成し, GitHub Container Registryに登録する
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          # リポジトリのトップディレクトリにDockerfileがあることを指定
+          context: .
+          # イメージ構築後にレジストリへの登録を行う
+          push: true
+          # タグ名を設定する
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
+
+  arm_image:
+    # Ubuntu環境のVMでイメージを構築
+    runs-on: ubuntu-latest
+    env:
+      # CPU
+      TARGET_CPUS: "arm armhw"
+      # イメージ名
+      IMAGE_NAME: crosstool-for-hos-arm
     steps:
       # 本リポジトリをチェックアウトする
       - name: checkout
