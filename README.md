@@ -9,8 +9,9 @@ Hyper Operating Systemの開発・試験に使用することを想定してい�
 
 対応CPUは以下の通りです。
 
+
 |  CPU名  |  ターゲット  | クロスコンパイラのインストール先 |
-| ---- | ---- | ---- | ---- |
+| ---- | ---- | ---- |
 |  h8300  |  H8 300用 | /opt/hos/cross/h8300 |
 |  sh2  |  SH2用  | /opt/hos/cross/sh2 |
 |  i386  |  IA32用  | /opt/hos/cross/i386 |
@@ -61,6 +62,8 @@ docker images
 実行例は以下の通りです。
 ```
 $ docker images
+REPOSITORY                                     TAG       IMAGE ID       CREATED          SIZE
+ghcr.io/takeharukato/crosstool-for-hos-riscv   latest    831484ca8065   40 minutes ago   4.42GB
 ```
 # コンパイル環境への入り方
 
@@ -75,8 +78,18 @@ docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ホストの作業ディレクトリをマウントし, ホストとファイルを共有する場合は,
 以下を実行します。
 
+以下のコマンド例では, `-v
+/etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro`を指定すること
+で, ホストLinuxのアカウントとユーザID, グループIDを一致させるようにしてい
+ます。コンテナ内でのアクセス権の設定方法は, ホスト環境によって異なりま
+すので, 使用するホストに合わせて適切に設定してください。
+
+参考:
+* dockerでvolumeをマウントしたときのファイルのowner問題 https://qiita.com/yohm/items/047b2e68d008ebb0f001
+* Docker for Windowsでマウントする https://qiita.com/kikako/items/7b6301a140cf37a5b7ac
+
 ```
-docker run -v ホストのディレクトリ:コンテナ内からアクセスする際のディレクトリ -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
+docker run -v /etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro -v ホストのディレクトリ:コンテナ内からアクセスする際のディレクトリ -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ```
 
 以下の例では, ホストのホームディレクトリ直下の
@@ -90,7 +103,8 @@ hos/share(`${HOME}/hos/share`)ディレクトリをコンテナから使用で�
 
 実行例:
 ```
-$ docker run -v ${HOME}/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
+$ docker run -v /etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro
+-v ${HOME}/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ```
 
 # シェル用初期化処理スクリプト
@@ -159,9 +173,42 @@ Lmodのモジュールが格納されており, これらのモジュールを`m
 * GDB_COMMAND クロスgdbのコマンド名が設定されます。
 
 実行例:
+コンテナ上で 以下の作業を行い, クロスコンパイル用の環境変数が設定され
+ることを確認する例です。
+
+
+1. ホスト上で`docker run`コマンドを実行し, コンテナに入ります。
+   実行コマンド: `docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv`
+2. シェルの初期化スクリプトをロードし, Lmodを使用可能にします。
+   ユーザ`hos`の場合は, 以下でユーザ`hos`に実行ユーザ切り替え時に自動
+   的に初期化スクリプトが読み込まれますが, より汎用的な手順として, 初
+   期化スクリプトを明示的に読み込むようにしています。
+   実行コマンド: `source /opt/hos/cross/etc/shell/init/bash`
+3. 特権ユーザでの作業をさけるため, ユーザ`hos`に切り替えます。
+   実行コマンド: `su - hos`
+4. 利用可能なモジュールの一覧を表示します。
+   実行コマンド: `module avail`
+5. 32bit RISC-V用のモジュールを読み込みます。
+   実行コマンド: `module load RISCV32-UNKNOWN-ELF-GCC`
+6. モジュールによって設定される環境変数を確認します。
+   実行コマンド: `printenv PATH`, `printenv QEMU`, `printenv
+   CROSS_COMPILE`, `printenv GCC_ARCH`, `printenv GDB_COMMAND`
+7. 32bit RISC-V用のモジュールの読込みを解除します。
+   実行コマンド: `module unload RISCV32-UNKNOWN-ELF-GCC`
+8. 64bit RISC-V用のモジュールを読み込みます。
+   実行コマンド: `module load RISCV64-UNKNOWN-ELF-GCC`
+9. モジュールによって設定される環境変数を確認します。
+   実行コマンド: `printenv PATH`, `printenv QEMU`, `printenv
+   CROSS_COMPILE`, `printenv GCC_ARCH`, `printenv GDB_COMMAND`
+10. 64bit RISC-V用のモジュールの読込みを解除します。
+   実行コマンド: `module unload RISCV64-UNKNOWN-ELF-GCC`
+
+
 ```
-root@c406e487e677:/# su - hos
-hos@c406e487e677:~$ module avail
+$ docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv
+root@b728864e1500:/# source /opt/hos/cross/etc/shell/init/bash
+root@b728864e1500:/# su - hos
+hos@c379e39513d0:~$ module avail
 
 ---------------------------- /usr/share/lmod/lmod/modulefiles
 ----------------------------
@@ -169,22 +216,38 @@ Core/lmod/6.6    Core/settarg/6.6
 
 ------------------------------ /opt/hos/cross/lmod/modules
 -------------------------------
-ARM-EABIHF-GCC
+RISCV32-UNKNOWN-ELF-GCC    RISCV64-UNKNOWN-ELF-GCC
 
 Use "module spider" to find all possible modules.
 Use "module keyword key1 key2 ..." to search for all possible modules
 matching any of the
 "keys".
 
-hos@c406e487e677:~$ module load ARM-EABIHF-GCC
-hos@606576c27de5:~$ printenv PATH
-/opt/hos/cross/armhw/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-hos@606576c27de5:~$ printenv QEMU
-qemu-system-arm
-hos@606576c27de5:~$ printenv CROSS_COMPILE
-arm-eabihf-
-hos@606576c27de5:~$ printenv GDB_COMMAND
-arm-eabihf-gdb
+hos@c379e39513d0:~$ module load RISCV32-UNKNOWN-ELF-GCC
+hos@c379e39513d0:~$ printenv PATH
+/opt/hos/cross/riscv32/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/hos@c379e39513d0:~$ printenv QEMU
+qemu-system-riscv32
+hos@c379e39513d0:~$ printenv CROSS_COMPILE
+riscv32-unknown-elf-
+hos@c379e39513d0:~$ printenv GCC_ARCH
+riscv32-unknown-elf-
+hos@c379e39513d0:~$ printenv GDB_COMMAND
+riscv32-unknown-elf-gdb
+usr/games:/usr/local/games:/snap/bin
+hos@c379e39513d0:~$ module unload RISCV32-UNKNOWN-ELF-GCC
+hos@c379e39513d0:~$ module load RISCV64-UNKNOWN-ELF-GCC
+hos@c379e39513d0:~$ printenv PATH
+/opt/hos/cross/riscv64/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+hos@c379e39513d0:~$ printenv QEMU
+qemu-system-riscv64
+hos@c379e39513d0:~$ printenv CROSS_COMPILE
+riscv64-unknown-elf-
+hos@c379e39513d0:~$ printenv GCC_ARCH
+riscv64-unknown-elf-
+hos@c379e39513d0:~$ printenv GDB_COMMAND
+riscv64-unknown-elf-gdb
+hos@c379e39513d0:~$ module unload RISCV64-UNKNOWN-ELF-GCC
+hos@c379e39513d0:~$
 ```
 
 # 開発者向け情報
