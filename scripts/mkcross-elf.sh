@@ -3,9 +3,9 @@
 ## -- 動作設定関連変数の開始 --
 
 # コンパイル対象CPU
-TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw"
-# TARGET_CPUS="h8300 sh2 i386 riscv32 riscv64"
-
+#TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw"
+#TARGET_CPUS="h8300 sh2 i386 riscv32 riscv64"
+TARGET_CPUS="riscv32"
 #
 #アーカイブ展開時のディレクトリ名
 #
