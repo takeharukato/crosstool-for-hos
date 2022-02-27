@@ -5,19 +5,48 @@ gcc ELFバイナリ向けクロスコンパイラをインストールしたLinu
 
 Hyper Operating Systemの開発・試験に使用することを想定しています。
 
+# 対応CPU
+
+対応CPUは以下の通りです。
+
+|  CPU名  |  ターゲット  | クロスコンパイラのインストール先 |
+| ---- | ---- | ---- | ---- |
+|  h8300  |  H8 300用 | /opt/hos/cross/h8300 |
+|  sh2  |  SH2用  | /opt/hos/cross/sh2 |
+|  i386  |  IA32用  | /opt/hos/cross/i386 |
+|  arm  |  32bit Arm soft float 用  |  /opt/hos/cross/arm |
+|  arm  |  32bit Arm hard float 用  |  /opt/hos/cross/armhw |
+|  microblaze  |  MicroBlaze 用  |  /opt/hos/cross/microblaze |
+| mips | 32bit mips big-endian 用 | /opt/hos/cross/mips |
+| mips | 32bit MIPS little-endian 用 | /opt/hos/cross/mipsel |
+| riscv | 32bit RISC-V 用 | /opt/hos/cross/riscv32 |
+| riscv | 32bit RISC-V 用 | /opt/hos/cross/riscv64 |
+
+arm, mips, riscvのイメージは, 浮動小数点演算方式, エンディアン, ビット
+数などの違いにより, 複数のコンパイラが含まれています。
+
 # イメージ取得方法
+
+イメージファイル名は, crosstool-for-hos-CPU名:latest となっています。
+CPU名は, `対応CPU`の節に記載したCPU名を指定してください。
+
+例えば, riscv環境のコンテナイメージの場合は, `crosstool-for-hos-riscv:latest`
+になります。
 
 以下のコマンドを実行して, コンパイル環境のコンテナイメージを取得します。
 
 ```
-docker pull ghcr.io/takeharukato/crosstool-for-hos:latest
+docker pull ghcr.io/takeharukato/crosstool-for-hos-CPU名:latest
 ```
 
-実行例:
+実行例: RISC-V開発環境のコンテナイメージを取得する
 ```
-$ docker pull ghcr.io/takeharukato/crosstool-for-hos:latest
+$ docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 $
 ```
+
+以降の節では, RISC-V開発環境のコンテナイメージを使用する場合の例を元に
+説明します。
 
 # イメージの確認
 
@@ -38,7 +67,7 @@ $ docker images
 以下のコマンドを実行することでコンテナイメージ内に入ることができます。
 
 ```
-docker run -it ghcr.io/takeharukato/crosstool-for-hos:latest
+docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ```
 
 ## ホスト環境のディレクトリへのアクセス方法
@@ -47,7 +76,7 @@ docker run -it ghcr.io/takeharukato/crosstool-for-hos:latest
 以下を実行します。
 
 ```
-docker run -v ホストのディレクトリ:コンテナ内からアクセスする際のディレクトリ -it ghcr.io/takeharukato/crosstool-for-hos:latest
+docker run -v ホストのディレクトリ:コンテナ内からアクセスする際のディレクトリ -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ```
 
 以下の例では, ホストのホームディレクトリ直下の
@@ -61,8 +90,21 @@ hos/share(`${HOME}/hos/share`)ディレクトリをコンテナから使用で�
 
 実行例:
 ```
-$ docker run -v ${HOME}/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos:latest
+$ docker run -v ${HOME}/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ```
+
+# シェル用初期化処理スクリプト
+
+コンテナ内クロスコンパイラを用いた作業を行うための初期化スクリプトが
+`/opt/hos/cross/etc/shell/init`に導入されています。
+
+作業開始時に以下のコマンドにより環境設定を読み込むことで,
+lmodによる環境変数定義を行うことができます。
+
+|  シェル |  初期化スクリプト | コマンド |
+| ---- | ---- | ---- |
+| bash | /opt/hos/cross/etc/shell/init/bash | source /opt/hos/cross/etc/shell/init/bash |
+| zsh | /opt/hos/cross/etc/shell/init/zsh | source /opt/hos/cross/etc/shell/init/zsh |
 
 # HOS開発者ユーザについて
 
