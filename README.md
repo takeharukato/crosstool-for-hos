@@ -293,10 +293,31 @@ https://uzimihsr.github.io/post/2020-10-11-github-action-publish-docker-image-gh
 
 ## ファイル構成
 
-* Dockerfile コンテナイメージを作成するためのDockerfileです
 * README.md 本ファイルです
+* Makefile コンテナイメージを作成するためのDockerfileからGitHub
+  Actionsでコンテナイメージを作成する際に使用するDockerfileのテンプレー
+  トを生成するMakefileです。
+* docker/Dockerfile コンテナイメージを作成するためのDockerfileです
 * scripts/mkcross-elf.sh クロスコンパイル環境を構築するためのスクリプ
-トです。
+  トです。
+* templates/Dockerfiles/Dockerfile.tmpl GitHub Actionsでコンテナイメー
+ジを作成する際に使用するDockerfileのテンプレートです。`make release`実
+行時に生成されます。
+* .github/workflows/push_container_image.yml コンテナイメージの作成と
+   GitHub Container Registryへのイメージ登録までを行うGitHub Actions定
+   義です。
+
+## Makefileについて
+
+以下のMakefile ターゲットが定義されています:
+
+* `release`  コンテナイメージを作成するためのDockerfileからGitHub
+  Actionsでコンテナイメージを作成する際に使用するDockerfileのテンプレー
+  トを生成
+* `build`  ローカル環境のDockerを使用して, コンテナイメージを作成しま
+  す。
+* `run`    ローカル環境で作成したコンテナイメージに入ります。
+* `clean-images` ローカル環境のコンテナイメージを削除します。
 
 ## スクリプトの修正
 
