@@ -24,9 +24,9 @@ Hyper Operating Systemの開発・試験に使用することを想定してい�
 | mips | 32bit mips big-endian 用 | /opt/hos/cross/mips |
 | mips | 32bit MIPS little-endian 用 | /opt/hos/cross/mipsel |
 | riscv | 32bit RISC-V 用 | /opt/hos/cross/riscv32 |
-| riscv | 32bit RISC-V 用 | /opt/hos/cross/riscv64 |
+| riscv | 64bit RISC-V 用 | /opt/hos/cross/riscv64 |
 
-arm, mips, riscvのイメージは, 浮動小数点演算方式, エンディアン, ビット
+arm, mips, riscvのイメージには, 浮動小数点演算方式, エンディアン, ビット
 数などの違いにより, 複数のコンパイラが含まれています。
 
 # イメージ取得方法
