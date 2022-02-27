@@ -7,6 +7,8 @@ FROM ubuntu
 LABEL maintainer="Takeharu KATO"
 # tzdataインストール時にタイムゾーンを聞かないようにする
 ENV DEBIAN_FRONTEND=noninteractive
+# ターゲットCPU
+# __TARGET_CPU_ENV_LINE__
 #
 #事前準備
 #
