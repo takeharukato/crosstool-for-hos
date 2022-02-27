@@ -26,6 +26,7 @@ on:
     paths:
       - 'scripts/mkcross-elf.sh'
       - '.github/workflows/push_container_image.yml'
+      - 'templates/Dockerfiles/Dockerfile.tmpl'
 jobs:
   riscv_image:
     # Ubuntu環境のVMでイメージを構築

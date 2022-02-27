@@ -1,4 +1,12 @@
 #!/bin/bash
+#
+# -*- coding:utf-8 mode: bash-mode -*-
+#
+# Hyper Operating System用クロス開発環境構築スクリプト
+#
+# Copyright (C) 1998-2022 by Project HOS
+# http://sourceforge.jp/projects/hos/
+#
 
 ## -- 動作設定関連変数の開始 --
 
