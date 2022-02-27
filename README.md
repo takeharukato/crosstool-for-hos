@@ -5,7 +5,8 @@ gcc ELFバイナリ向けクロスコンパイラをインストールしたLinu
 
 Hyper Operating Systemの開発・試験に使用することを想定しています。
 
-リポジトリ: https://github.com/takeharukato/crosstool-for-hos
+* リポジトリ: https://github.com/takeharukato/crosstool-for-hos
+* コンテナイメージパッケージ: https://github.com/takeharukato?tab=packages
 
 # 対応CPU
 
