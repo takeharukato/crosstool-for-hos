@@ -429,7 +429,7 @@ arm-eabihfに設定します。
 
 ## 付録: EmacsのGrand Unified Debugger modeでデバッグするための設定
 
-環境変数``GDB_COMMAND`に設定されているクロスのgdbを用いて, Emacsの
+環境変数`GDB_COMMAND`に設定されているクロスのgdbを用いて, Emacsの
 Grand Unified Debugger modeでデバッグする際のデバッガ名を設定するため
 の`.emacs`を以下に記載します。
 
