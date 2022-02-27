@@ -47,6 +47,7 @@ jobs:
           username: ${{ github.repository_owner }}
           # 本リポジトリの`CR_PAT`シークレットを使用してログインする
           password: ${{ secrets.CR_PAT }}
+
       # コンテナイメージを作成し, GitHub Container Registryに登録する
       - name: Build and push
         uses: docker/build-push-action@v2
@@ -58,8 +59,8 @@ jobs:
           # タグ名を設定する
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
-      env:
-        # CPU
-        TARGET_CPUS: "riscv32 riscv64"
-        # イメージ名
-        IMAGE_NAME: crosstool-for-hos-riscv
+          env:
+            # CPU
+            TARGET_CPUS: "riscv32 riscv64"
+            # イメージ名
+            IMAGE_NAME: crosstool-for-hos-riscv
