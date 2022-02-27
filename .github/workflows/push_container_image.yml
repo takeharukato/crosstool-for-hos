@@ -55,7 +55,8 @@ jobs:
       # 環境変数設定
       - name: Environment Variable
         run: |
-          echo "TARGET_CPUS=${{ env.TARGET_CPUS }}" >> $GITHUB_ENV
+          echo "Target CPUS: ${{ env.TARGET_CPUS }}"
+          cat Dockerfile-templates/Dockerfile.tmpl|sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' |tee Dockerfile
       # コンテナイメージを作成し, GitHub Container Registryに登録する
       - name: Build and push
         uses: docker/build-push-action@v2
