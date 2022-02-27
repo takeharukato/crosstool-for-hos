@@ -8,7 +8,10 @@
 
 # Ubuntu環境を使用
 FROM ubuntu
-LABEL maintainer="Takeharu KATO"
+# メインテナ名
+LABEL maintainer="Project HOS"
+# リポジトリと関連付ける
+LABEL org.opencontainers.image.source https://github.com/takeharukato/crosstool-for-hos
 # tzdataインストール時にタイムゾーンを聞かないようにする
 ENV DEBIAN_FRONTEND=noninteractive
 # ターゲットCPU
