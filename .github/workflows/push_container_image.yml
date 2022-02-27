@@ -26,12 +26,15 @@ on:
     paths:
       - 'scripts/mkcross-elf.sh'
 jobs:
-  build_and_push:
+  env:
+    # イメージ名
+    IMAGE_NAME: crosstool-for-hos-riscv32
+  riscv_32:
     # Ubuntu環境のVMでイメージを構築
     runs-on: ubuntu-latest
     env:
       # コンテナイメージ名
-      IMAGE_NAME: crosstool-for-hos
+      TARGET_CPUS: riscv32
     steps:
       # 本リポジトリをチェックアウトする
       - name: checkout
