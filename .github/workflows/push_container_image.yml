@@ -26,9 +26,6 @@ on:
     paths:
       - 'scripts/mkcross-elf.sh'
       - '.github/workflows/push_container_image.yml'
-env:
-  # イメージ名のプレフィクス
-  IMAGE_PREFIX: crosstool-for-hos
 jobs:
   riscv32_image:
     # Ubuntu環境のVMでイメージを構築
@@ -37,7 +34,7 @@ jobs:
       # CPU
       TARGET_CPUS: riscv32
       # イメージ名
-      IMAGE_NAME: ${{ env.IMAGE_PREFIX }}-${{ env.TARGET_CPUS }}
+      IMAGE_NAME: crosstool-for-hos-${{ env.TARGET_CPUS }}
     steps:
       # 本リポジトリをチェックアウトする
       - name: checkout
