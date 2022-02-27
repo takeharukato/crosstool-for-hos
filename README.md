@@ -5,6 +5,8 @@ gcc ELFバイナリ向けクロスコンパイラをインストールしたLinu
 
 Hyper Operating Systemの開発・試験に使用することを想定しています。
 
+リポジトリ: https://github.com/takeharukato/crosstool-for-hos
+
 # 対応CPU
 
 対応CPUは以下の通りです。
@@ -274,6 +276,19 @@ forkしたリポジトリで実行する場合, 以下の事前準備が必要�
 
 参考サイト: Github Actionsを使ってDocker ImageをGitHub Container RegistryにPushする
 https://uzimihsr.github.io/post/2020-10-11-github-action-publish-docker-image-ghcr/
+
+## コンテナイメージの公開
+
+登録されたコンテナイメージはprivateに設定されます。
+以下の手順を実施してコンテナイメージをpublicに設定します。
+
+1. GitHubホーム画面上部の`Packages`ボタンを押します。
+2. イメージファイル名の一覧内から公開するイメージをクリックします。
+3. コンテナイメージ情報画面右の`Package Setting`ボタンを押します。
+4. コンテナイメージの`Package Setting`画面下部の`Danger zone`中にある`Change visibility`ボタンを押します。
+5. `Public`を選択し, Confirmテキストボックス内にコンテナ名を入力後, `I
+   understand the consequences, change package visibility.`ボタンを押
+   します。
 
 ## ファイル構成
 
