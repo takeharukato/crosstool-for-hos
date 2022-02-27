@@ -50,6 +50,8 @@ jobs:
 
       # コンテナイメージを作成し, GitHub Container Registryに登録する
       - name: Build and push
+        run: |
+          echo "TARGET_CPUS=${{ env.TARGET_CPUS }}" >> $GITHUB_ENV
         uses: docker/build-push-action@v2
         with:
           # リポジトリのトップディレクトリにDockerfileがあることを指定
