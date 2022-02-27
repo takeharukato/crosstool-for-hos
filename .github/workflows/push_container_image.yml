@@ -25,6 +25,7 @@ on:
       - main
     paths:
       - 'scripts/mkcross-elf.sh'
+      - '.github/workflows/push_container_image.yml'
 env:
   # イメージ名のプレフィクス
   IMAGE_PREFIX: crosstool-for-hos
