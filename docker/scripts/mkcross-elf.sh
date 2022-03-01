@@ -13,8 +13,9 @@
 # コンパイル対象CPU
 if [ "x${TARGET_CPUS}" = "x" ]; then
     echo "No target cpus specified, build all."
-    TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw"
+    #TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw"
     #TARGET_CPUS="h8300 sh2 i386 riscv32 riscv64"
+    TARGET_CPUS="arm"
 else
     echo "Target CPUS: ${TARGET_CPUS}"
 fi

@@ -18,6 +18,7 @@ release:
 	tee templates/Dockerfiles/Dockerfile.tmpl
 build:
 	docker build -t ${IMAGE_NAME} docker
+
 run:
 	docker run -it ${IMAGE_NAME}
 
