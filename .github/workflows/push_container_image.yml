@@ -19,6 +19,7 @@
 #
 name: Build and Publish Container Image for Hyper Operating System developers
 on:
+  # 手動実行
   workflow_dispatch:
 
   push:
