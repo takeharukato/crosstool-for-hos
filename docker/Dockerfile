@@ -50,4 +50,4 @@ RUN ls -lR /home/cross/mkcross;       \
     cd /home/cross/mkcross/workdir ;  \
     ../mkcross-elf.sh;                \
     ls -lR /opt/hos/cross;            \
-    rm -fr /home/cross
+    rm -fr /home/cross;
