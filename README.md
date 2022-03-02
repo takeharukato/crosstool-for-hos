@@ -3,10 +3,12 @@
 gcc ELFバイナリ向けクロスコンパイラをインストールしたLinux環境(Ubuntu)
 のコンテナイメージです。
 
-Hyper Operating Systemの開発・試験に使用することを想定しています。
+Hyper Operating System の開発・試験に使用することを想定しています。
 
 * リポジトリ: https://github.com/takeharukato/crosstool-for-hos
 * コンテナイメージパッケージ: https://github.com/takeharukato?tab=packages
+* Hyper Operating System : https://ja.osdn.net/projects/hos/
+* HOS-V4 Advance -μITRON4.0仕様 RealTime-OS (作者local版): https://github.com/ryuz/hos-v4a
 
 # 対応CPU
 
