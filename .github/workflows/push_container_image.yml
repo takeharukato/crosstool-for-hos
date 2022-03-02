@@ -19,6 +19,8 @@
 #
 name: Build and Publish Container Image for Hyper Operating System developers
 on:
+  workflow_dispatch:
+
   push:
     # mainブランチに, scripts/mkcross-elf.shをpushしたら実行
     branches:
