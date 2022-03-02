@@ -311,16 +311,21 @@ jobs:
           # 本リポジトリの`CR_PAT`シークレットを使用してログインする
           password: ${{ secrets.CR_PAT }}
       # 環境変数設定
-      - name: Environment Variable
+      - name: Environment Variable and directories
         run: |
           echo "Target CPUS: ${{ env.TARGET_CPUS }}"
-          cat templates/Dockerfiles/Dockerfile.tmpl|sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' |tee Dockerfile
+          mkdir -p workdir
+          cp -a docker/* workdir
+          rm -f workdir/Dockerfile
+          cat templates/Dockerfiles/Dockerfile.tmpl|sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' |tee workdir/Dockerfile
+          ls -lR workdir
+          cat workdir/Dockerfile
       # コンテナイメージを作成し, GitHub Container Registryに登録する
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          # リポジトリのトップディレクトリにDockerfileがあることを指定
-          context: .
+          # リポジトリのworkdirディレクトリにDockerfileがあることを指定
+          context: workdir
           # イメージ構築後にレジストリへの登録を行う
           push: true
           # タグ名を設定する
