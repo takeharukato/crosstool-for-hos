@@ -28,7 +28,6 @@ on:
       - main
     paths:
       - 'docker/scripts/mkcross-elf.sh'
-      - '.github/workflows/push_container_image.yml'
       - 'templates/Dockerfiles/Dockerfile.tmpl'
 jobs:
   riscv_image:
@@ -59,19 +58,20 @@ jobs:
           username: ${{ github.repository_owner }}
           # 本リポジトリの`CR_PAT`シークレットを使用してログインする
           password: ${{ secrets.CR_PAT }}
-      # 環境変数設定
-      - name: Environment Variable and directories
+      # 環境変数/ディレクトリ設定
+      - name: Environment variable and work directory
         run: |
           echo "Target CPUS: ${{ env.TARGET_CPUS }}"
-          cp -a docker/* .
-          rm -f Dockerfile
-          cat templates/Dockerfiles/Dockerfile.tmpl|sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' |tee Dockerfile
+          mkdir -p workdir
+          cp -a docker/* workdir
+          rm -f workdir/Dockerfile
+          cat templates/Dockerfiles/Dockerfile.tmpl|sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' |tee workdir/Dockerfile
       # コンテナイメージを作成し, GitHub Container Registryに登録する
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          # リポジトリのトップディレクトリにDockerfileがあることを指定
-          context: .
+          # リポジトリのworkdirにDockerfileがあることを指定
+          context: workdir
           # イメージ構築後にレジストリへの登録を行う
           push: true
           # タグ名を設定する
