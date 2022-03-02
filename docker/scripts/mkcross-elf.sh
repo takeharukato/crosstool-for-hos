@@ -15,7 +15,7 @@ if [ "x${TARGET_CPUS}" = "x" ]; then
     echo "No target cpus specified, build all."
     #TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw"
     #TARGET_CPUS="h8300 sh2 i386 riscv32 riscv64"
-    TARGET_CPUS="arm"
+    TARGET_CPUS="h8300"
 else
     echo "Target CPUS: ${TARGET_CPUS}"
 fi
@@ -103,6 +103,12 @@ declare -A cpu_target_names=(
     ["sh2-elf"]="sh-elf"
     )
 
+#
+# ターゲット用cflags
+#
+declare -A cpu_target_cflags=(
+    ["h8300-elf"]="-mh"
+    )
 
 ## -- 動作設定関連変数のおわり --
 
@@ -247,7 +253,7 @@ download_archives(){
 }
 
 #
-# cross_binutils ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+# cross_binutils ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
 #
 cross_binutils(){
     local cpu="$1"
@@ -255,6 +261,7 @@ cross_binutils(){
     local prefix="$3"
     local src_dir="$4/binutils"
     local build_dir="$5/binutils"
+    local toolchain_type="$6"
     local sys_root="${prefix}/rfs"
     local key="binutils"
     local archive
@@ -329,7 +336,7 @@ cross_binutils(){
 }
 
 #
-# cross_gcc_stage1 ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+# cross_gcc_stage1 ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
 #
 cross_gcc_stage1(){
     local cpu="$1"
@@ -337,11 +344,15 @@ cross_gcc_stage1(){
     local prefix="$3"
     local src_dir="$4/gcc_stage1"
     local build_dir="$5/gcc_stage1"
+    local toolchain_type="$6"
     local sys_root="${prefix}/rfs"
     local key="gcc"
     local rmfile
     local tool
     local archive
+    local target_cflags
+
+    target_cflags="${cpu_target_cflags[${cpu}-${toolchain_type}]}"
 
     echo "@@@ gcc_stage1 @@@"
     echo "Prefix:${prefix}"
@@ -349,6 +360,7 @@ cross_gcc_stage1(){
     echo "Sysroot:${sys_root}"
     echo "BuildDir:${build_dir}"
     echo "SourceDir:${src_dir}"
+    echo "Target Cflags:${target_cflags}"
 
     tool=`get_tool_name ${cpu} ${key}`
     archive=`get_archive_name ${cpu} ${key}`
@@ -374,7 +386,8 @@ cross_gcc_stage1(){
     popd
 
     pushd "${build_dir}"
-    ${src_dir}/${tool}/configure                          \
+    env CFLAGS_FOR_TARGET="${target_cflags}"                  \
+    ${src_dir}/${tool}/configure                              \
 	      --prefix="${prefix}"                            \
 	      --target="${target}"                            \
 	      --with-local-prefix="${prefix}/${target}"       \
@@ -458,7 +471,7 @@ cross_gcc_stage1(){
 }
 
 #
-# cross_newlib ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+# cross_newlib ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
 #
 cross_newlib(){
     local cpu="$1"
@@ -466,6 +479,7 @@ cross_newlib(){
     local prefix="$3"
     local src_dir="$4/newlib"
     local build_dir="$5/newlib"
+    local toolchain_type="$6"
     local sys_root="${prefix}/rfs"
     local key="newlib"
     local tool
@@ -473,6 +487,9 @@ cross_newlib(){
     local basename
     local mvfile
     local dir
+    local target_cflags
+
+    target_cflags="${cpu_target_cflags[${cpu}-${toolchain_type}]}"
 
     echo "@@@ newlib @@@"
     echo "Prefix:${prefix}"
@@ -480,6 +497,7 @@ cross_newlib(){
     echo "Sysroot:${sys_root}"
     echo "BuildDir:${build_dir}"
     echo "SourceDir:${src_dir}"
+    echo "Target Cflags:${target_cflags}"
 
     tool=`get_tool_name ${cpu} ${key}`
     archive=`get_archive_name ${cpu} ${key}`
@@ -506,6 +524,7 @@ cross_newlib(){
     popd
 
     pushd "${build_dir}"
+    env CFLAGS_FOR_TARGET="${target_cflags}"             \
     ${src_dir}/${tool}/configure                         \
 	      --prefix="${prefix}"                       \
 	      --target="${target}"
@@ -550,7 +569,7 @@ cross_newlib(){
 }
 
 #
-# cross_gcc_elf_final ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+# cross_gcc_elf_final ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
 #
 cross_gcc_elf_final(){
     local cpu="$1"
@@ -558,11 +577,15 @@ cross_gcc_elf_final(){
     local prefix="$3"
     local src_dir="$4/gcc_elf_final"
     local build_dir="$5/gcc_elf_final"
+    local toolchain_type="$6"
     local sys_root="${prefix}/rfs"
     local key="gcc"
     local rmfile
     local tool
     local archive
+    local target_cflags
+
+    target_cflags="${cpu_target_cflags[${cpu}-${toolchain_type}]}"
 
     echo "@@@ gcc_elf @@@"
     echo "Prefix:${prefix}"
@@ -570,6 +593,7 @@ cross_gcc_elf_final(){
     echo "Sysroot:${sys_root}"
     echo "BuildDir:${build_dir}"
     echo "SourceDir:${src_dir}"
+    echo "Target Cflags:${target_cflags}"
 
     tool=`get_tool_name ${cpu} ${key}`
     archive=`get_archive_name ${cpu} ${key}`
@@ -632,7 +656,8 @@ cross_gcc_elf_final(){
     #           libsanitizerを生成しない
     #--disable-nls
     #         コンパイル時間を短縮するためNative Language Supportを無効化する
-    ${src_dir}/${tool}/configure                          \
+    env CFLAGS_FOR_TARGET="${target_cflags}"                  \
+    ${src_dir}/${tool}/configure                              \
 	      --prefix="${prefix}"                            \
 	      --target="${target}"                            \
 	      --with-local-prefix="${prefix}/${target}"       \
@@ -695,7 +720,7 @@ cross_gcc_elf_final(){
 }
 
 #
-# cross_gdb ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+# cross_gdb ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
 #
 cross_gdb(){
     local cpu="$1"
@@ -703,6 +728,7 @@ cross_gdb(){
     local prefix="$3"
     local src_dir="$4/gdb"
     local build_dir="$5/gdb"
+    local toolchain_type="$6"
     local sys_root="${prefix}/rfs"
     local key="gdb"
     local python_path
@@ -761,7 +787,7 @@ cross_gdb(){
 
     case ${TARGET_CPU} in
 	h8300|v850)
-	    python_arg=""
+	    python_arg="--without-python"
 	    ;;
     esac
 
@@ -813,7 +839,7 @@ cross_gdb(){
 }
 
 #
-# build_qemu ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+# build_qemu ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
 #
 build_qemu(){
     local cpu="$1"
@@ -821,6 +847,7 @@ build_qemu(){
     local prefix="$3"
     local src_dir="$4/qemu"
     local build_dir="$5/qemu"
+    local toolchain_type="$6"
     local sys_root="${prefix}/rfs"
     local qemu_target_list
     local key="qemu"
@@ -889,7 +916,7 @@ build_qemu(){
 }
 
 #
-# generate_module_file ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ
+# generate_module_file ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
 #
 generate_module_file(){
     local cpu="$1"
@@ -1037,17 +1064,17 @@ main(){
 	export PATH="${prefix}/bin:${orig_path}"
 
 	cross_binutils \
-	     "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	     "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 	cross_gcc_stage1 \
-	     "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
-	cross_newlib "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	     "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+	cross_newlib "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 	cross_gcc_elf_final \
-	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
-	cross_gdb "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+	cross_gdb "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 
-	build_qemu  "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	build_qemu  "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 	generate_module_file \
-	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}"
+	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 
 	export PATH="${orig_path}"
     done
