@@ -43,6 +43,8 @@ jobs:
       # 本リポジトリをチェックアウトする
       - name: checkout
         uses: actions/checkout@v2
+        with:
+          persist-credentials: false
       # コンテナイメージを構築するための準備を行う
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
