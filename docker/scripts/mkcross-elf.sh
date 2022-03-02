@@ -97,6 +97,7 @@ declare -A qemu_cpus=(
 # ターゲット名
 #
 declare -A cpu_target_names=(
+    ["arm-elf"]="arm-none-eabi"
     ["armhw-elf"]="arm-eabihf"
     ["h8300-elf"]="h8300-elf"
     ["sh2-elf"]="sh-elf"

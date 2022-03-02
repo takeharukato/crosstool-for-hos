@@ -16,7 +16,8 @@ release:
 	sed -e \
 	's|# __TARGET_CPU_ENV_LINE__|ENV TARGET_CPUS="__REPLACE_TARGET_CPUS__"|g' | \
 	tee templates/Dockerfiles/Dockerfile.tmpl
-build:
+
+build: release
 	docker build -t ${IMAGE_NAME} docker
 
 run:

@@ -24,7 +24,7 @@ on:
     branches:
       - main
     paths:
-      - 'scripts/mkcross-elf.sh'
+      - 'docker/scripts/mkcross-elf.sh'
       - '.github/workflows/push_container_image.yml'
       - 'templates/Dockerfiles/Dockerfile.tmpl'
 jobs:
