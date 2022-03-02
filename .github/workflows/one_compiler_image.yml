@@ -32,7 +32,7 @@ on:
 jobs:
   riscv_image:
     # Ubuntu環境のVMでイメージを構築
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     env:
       # CPU
       TARGET_CPUS: "riscv32 riscv64"
