@@ -62,3 +62,7 @@ series
 # Build log
 #
 build.log
+#
+# work directory
+#
+workdir
