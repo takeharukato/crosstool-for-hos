@@ -13,18 +13,18 @@ Hyper Operating Systemの開発・試験に使用することを想定してい�
 対応CPUは以下の通りです。
 
 
-|  CPU名  |  ターゲット  | クロスコンパイラのインストール先 |
-| ---- | ---- | ---- |
-|  h8300  |  H8 300用 | /opt/hos/cross/h8300 |
-|  sh2  |  SH2用  | /opt/hos/cross/sh2 |
-|  i386  |  IA32用  | /opt/hos/cross/i386 |
-|  arm  |  32bit Arm soft float 用  |  /opt/hos/cross/arm |
-|  arm  |  32bit Arm hard float 用  |  /opt/hos/cross/armhw |
-|  microblaze  |  MicroBlaze 用  |  /opt/hos/cross/microblaze |
-| mips | 32bit mips big-endian 用 | /opt/hos/cross/mips |
-| mips | 32bit MIPS little-endian 用 | /opt/hos/cross/mipsel |
-| riscv | 32bit RISC-V 用 | /opt/hos/cross/riscv32 |
-| riscv | 64bit RISC-V 用 | /opt/hos/cross/riscv64 |
+|  CPU名  |  ターゲット  | クロスコンパイラのインストール先 | Lmodのモジュール名 |
+| ---- | ---- | ---- | ---- |
+|  h8300  |  H8 300H用 | /opt/hos/cross/h8300 | H8300-ELF-GCC |
+|  sh2  |  SH2用  | /opt/hos/cross/sh2 | SH-ELF_GCC |
+|  i386  |  IA32用  | /opt/hos/cross/i386 | I386-UNKNOWN-ELF-GCC |
+|  arm  |  32bit Arm soft float 用  |  /opt/hos/cross/arm | ARM-NONE-EABI-GCC |
+|  arm  |  32bit Arm hard float 用  |  /opt/hos/cross/armhw | ARM-EABIHF-GCC |
+|  microblaze  |  MicroBlaze 用  |  /opt/hos/cross/microblaze | MICROBLAZE-UNKNOWN-ELF-GCC |
+| mips | 32bit mips big-endian 用 | /opt/hos/cross/mips | MIPS-UNKNOWN-ELF-GCC |
+| mips | 32bit MIPS little-endian 用 | /opt/hos/cross/mipsel | MIPSEL-UNKNOWN-ELF-GCC |
+| riscv | 32bit RISC-V 用 | /opt/hos/cross/riscv32 | RISCV32-UNKNOWN-ELF-GCC |
+| riscv | 64bit RISC-V 用 | /opt/hos/cross/riscv64 | RISCV64-UNKNOWN-ELF-GCC |
 
 arm, mips, riscvのイメージには, 浮動小数点演算方式, エンディアン, ビット
 数などの違いにより, 複数のコンパイラが含まれています。
@@ -425,6 +425,22 @@ tripletを指定するために導入しています。
 arm-eabihfに設定します。
 ```
     ["armhw-elf"]="arm-eabihf"
+```
+
+## cpu_target_cflags
+
+gccのランタイムやlibcを構築する際のCコンパイラフラグ(cflags)を指定する
+ための連想配列です。
+
+TARGET_CPUSに記述した`CPU名-elf`をキーに, cflagsの設定値を取り出します。
+
+H8/300Hなどランタイムライブラリコンパイル時にオプションと
+HOSのコンパイルオプションとの不一致によるバイナリ生成失敗を
+回避するために導入しています。
+
+記述例: H8/300用のコードを生成するようにclagsに`-mh`を設定します。
+```
+    ["h8300-elf"]="-mh"
 ```
 
 ## 付録: EmacsのGrand Unified Debugger modeでデバッグするための設定

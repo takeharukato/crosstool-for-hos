@@ -58,3 +58,7 @@ patches-*
 # quilt's files
 patches
 series
+#
+# Build log
+#
+build.log

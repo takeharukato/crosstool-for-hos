@@ -38,11 +38,16 @@ RUN apt update; \
     libibverbs-dev libibumad-dev libvirt-dev libffi-dev libbpfcc-dev \
     libdaxctl-dev \
     lmod ; \
-    mkdir -p /home/cross/mkcross/workdir ;
+    mkdir -p /home/cross/mkcross/workdir ; \
+    mkdir -p /home/cross/mkcross/patches/gdb ;
 
 # クロスコンパイラ作成スクリプトをコピー
 COPY scripts/mkcross-elf.sh /home/cross/mkcross
+# QEmuのクロスでバッグ用パッチをコピー
+COPY patches/gdb/gdb-8.3-qemu-x86-64.patch /home/cross/mkcross/patches/gdb
 # コンパイル環境生成
-RUN  cd /home/cross/mkcross/workdir ; \
+RUN ls -lR /home/cross/mkcross;       \
+    cd /home/cross/mkcross/workdir ;  \
     ../mkcross-elf.sh;                \
+    ls -lR /opt/hos/cross;            \
     rm -fr /home/cross

@@ -5,7 +5,7 @@
 # http://sourceforge.jp/projects/hos/
 #
 
-.PHONY: release build run clean clean-images
+.PHONY: release build run clean clean-images dist-clean
 
 IMAGE_NAME=crosstool-for-hos
 
@@ -18,7 +18,7 @@ release:
 	tee templates/Dockerfiles/Dockerfile.tmpl
 
 build: release
-	docker build -t ${IMAGE_NAME} docker
+	docker build -t ${IMAGE_NAME} docker|tee build.log 2>&1
 
 run:
 	docker run -it ${IMAGE_NAME}
@@ -29,3 +29,6 @@ clean-images:
 
 clean:
 	${RM} *~
+
+dist-clean: clean
+	${RM} -f build.log

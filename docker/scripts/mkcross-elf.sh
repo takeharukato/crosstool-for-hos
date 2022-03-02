@@ -12,10 +12,10 @@
 
 # コンパイル対象CPU
 if [ "x${TARGET_CPUS}" = "x" ]; then
-    echo "No target cpus specified, build all."
     #TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw"
     #TARGET_CPUS="h8300 sh2 i386 riscv32 riscv64"
     TARGET_CPUS="h8300"
+    echo "No target cpus specified, build all:${TARGET_CPUS}"
 else
     echo "Target CPUS: ${TARGET_CPUS}"
 fi
@@ -32,7 +32,6 @@ declare -A tool_names=(
     ["h8300-binutils"]="binutils-2.24"
     ["h8300-gcc"]="gcc-8.4.0"
     ["h8300-newlib"]="newlib-2.5.0"
-    ["h8300-gdb"]="gdb-7.12"
     ["sh2-newlib"]="newlib-2.5.0"
     )
 #
@@ -113,6 +112,14 @@ declare -A cpu_target_cflags=(
 ## -- 動作設定関連変数のおわり --
 
 #
+#スクリプト配置先ディレクトリ
+#
+MKCROSS_SCRIPTS_DIR=$(cd $(dirname $0);pwd)
+#
+#パッチ配置先ディレクトリ
+#
+MKCROSS_PATCHES_DIR=${MKCROSS_SCRIPTS_DIR}/patches
+#
 #インストール先
 #
 CROSS_PREFIX="/opt/hos/cross"
@@ -134,6 +141,8 @@ TOP_DIR=`pwd`
 # ダウンロードアーカイブ格納ディレクトリ
 DOWNLOADS_DIR=${TOP_DIR}/downloads
 
+# ターゲット用の最適化フラグ
+MKCROSS_OPT_FLAGS_FOR_TARGET="-g -O2 -finline-functions"
 #
 #ツール名を取得する
 # get_tool_name CPU名 ツール種別
@@ -386,7 +395,7 @@ cross_gcc_stage1(){
     popd
 
     pushd "${build_dir}"
-    env CFLAGS_FOR_TARGET="${target_cflags}"                  \
+    env CFLAGS_FOR_TARGET="${MKCROSS_OPT_FLAGS_FOR_TARGET} ${target_cflags}" \
     ${src_dir}/${tool}/configure                              \
 	      --prefix="${prefix}"                            \
 	      --target="${target}"                            \
@@ -524,7 +533,7 @@ cross_newlib(){
     popd
 
     pushd "${build_dir}"
-    env CFLAGS_FOR_TARGET="${target_cflags}"             \
+    env CFLAGS_FOR_TARGET="${MKCROSS_OPT_FLAGS_FOR_TARGET} ${target_cflags}"   \
     ${src_dir}/${tool}/configure                         \
 	      --prefix="${prefix}"                       \
 	      --target="${target}"
@@ -656,7 +665,7 @@ cross_gcc_elf_final(){
     #           libsanitizerを生成しない
     #--disable-nls
     #         コンパイル時間を短縮するためNative Language Supportを無効化する
-    env CFLAGS_FOR_TARGET="${target_cflags}"                  \
+    env CFLAGS_FOR_TARGET="${MKCROSS_OPT_FLAGS_FOR_TARGET} ${target_cflags}"   \
     ${src_dir}/${tool}/configure                              \
 	      --prefix="${prefix}"                            \
 	      --target="${target}"                            \
@@ -785,9 +794,9 @@ cross_gdb(){
 	python_arg=""
     fi
 
-    case ${TARGET_CPU} in
-	h8300|v850)
-	    python_arg="--without-python"
+    case "${cpu}" in
+	v850)
+	    python_arg="--with-python=no"
 	    ;;
     esac
 
@@ -795,6 +804,12 @@ cross_gdb(){
     tar xf ${DOWNLOADS_DIR}/${archive}
     popd
 
+    #
+    #gdb用のパッチを適用
+    #
+    pushd "${src_dir}/${tool}"
+    patch -p1 < ${MKCROSS_PATCHES_DIR}/gdb/gdb-8.3-qemu-x86-64.patch
+    popd
     #
     # configureの設定
     #
