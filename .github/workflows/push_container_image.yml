@@ -22,7 +22,7 @@ on:
   workflow_dispatch:
 
   push:
-    # mainブランチに, docker/scripts/mkcross-elf.shをpushしたら実行
+    # mainブランチに, scripts/mkcross-elf.shをpushしたら実行
     branches:
       - main
     paths:
@@ -102,8 +102,8 @@ jobs:
         run: |
           echo "Target CPUS: ${{ env.TARGET_CPUS }}"
           mkdir -p work
-          cp -a docker/scripts work
-          cp -a docker/patches work
+          cp -a scripts work
+          cp -a patches work
           cat templates/Dockerfiles/Dockerfile.tmpl|sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' |tee work/Dockerfile
       # コンテナイメージを作成し, GitHub Container Registryに登録する
       - name: Build and push
