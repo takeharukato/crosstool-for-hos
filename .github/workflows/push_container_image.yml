@@ -101,16 +101,13 @@ jobs:
       - name: Environment Variable
         run: |
           echo "Target CPUS: ${{ env.TARGET_CPUS }}"
-          mkdir -p work
-          cp -a scripts work
-          cp -a patches work
-          cat templates/Dockerfiles/Dockerfile.tmpl|sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' |tee work/Dockerfile
+          cat templates/Dockerfiles/Dockerfile.tmpl|sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' |tee Dockerfile
       # コンテナイメージを作成し, GitHub Container Registryに登録する
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          # workディレクトリにDockerfileがあることを指定
-          context: work
+          # リポジトリのトップディレクトリにDockerfileがあることを指定
+          context: .
           # イメージ構築後にレジストリへの登録を行う
           push: true
           # タグ名を設定する
