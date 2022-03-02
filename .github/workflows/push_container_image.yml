@@ -45,6 +45,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           persist-credentials: false
+          fetch-depth: 0
       # コンテナイメージを構築するための準備を行う
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
