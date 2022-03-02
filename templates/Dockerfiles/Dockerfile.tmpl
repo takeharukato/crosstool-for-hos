@@ -41,7 +41,7 @@ RUN apt update; \
     mkdir -p /home/cross/mkcross/workdir ;
 
 # クロスコンパイラ作成スクリプトをコピー
-COPY scripts/mkcross-elf.sh /home/cross/mkcross
+COPY docker/scripts/mkcross-elf.sh /home/cross/mkcross
 # コンパイル環境生成
 RUN  cd /home/cross/mkcross/workdir ; \
     ../mkcross-elf.sh;                \
