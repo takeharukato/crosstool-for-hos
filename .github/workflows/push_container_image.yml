@@ -105,6 +105,7 @@ jobs:
           cp -a docker/scripts work
           cp -a docker/patches work
           cat templates/Dockerfiles/Dockerfile.tmpl|sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' |tee work/Dockerfile
+          ls -lR work
       # コンテナイメージを作成し, GitHub Container Registryに登録する
       - name: Build and push
         uses: docker/build-push-action@v2
