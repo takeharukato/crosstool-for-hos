@@ -39,6 +39,13 @@ jobs:
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-riscv
     steps:
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          # This is the key right here
+          key: ${{ runner.os }}-riscv-${{ hashFiles('**/mkcross-elf.sh') }}
+          path: |
+            ./docker/Dockerfile
       # 本リポジトリをチェックアウトする
       - name: checkout
         uses: actions/checkout@v2
@@ -87,6 +94,13 @@ jobs:
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-i386
     steps:
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          # This is the key right here
+          key: ${{ runner.os }}-riscv-${{ hashFiles('**/mkcross-elf.sh') }}
+          path: |
+            ./docker/Dockerfile
       # 本リポジトリをチェックアウトする
       - name: checkout
         uses: actions/checkout@v2
@@ -129,6 +143,13 @@ jobs:
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-mips
     steps:
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          # This is the key right here
+          key: ${{ runner.os }}-riscv-${{ hashFiles('**/mkcross-elf.sh') }}
+          path: |
+            ./docker/Dockerfile
       # 本リポジトリをチェックアウトする
       - name: checkout
         uses: actions/checkout@v2
@@ -171,6 +192,13 @@ jobs:
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-h8300
     steps:
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          # This is the key right here
+          key: ${{ runner.os }}-riscv-${{ hashFiles('**/mkcross-elf.sh') }}
+          path: |
+            ./docker/Dockerfile
       # 本リポジトリをチェックアウトする
       - name: checkout
         uses: actions/checkout@v2
@@ -213,6 +241,13 @@ jobs:
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-sh2
     steps:
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          # This is the key right here
+          key: ${{ runner.os }}-riscv-${{ hashFiles('**/mkcross-elf.sh') }}
+          path: |
+            ./docker/Dockerfile
       # 本リポジトリをチェックアウトする
       - name: checkout
         uses: actions/checkout@v2
@@ -255,6 +290,13 @@ jobs:
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-microblaze
     steps:
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          # This is the key right here
+          key: ${{ runner.os }}-riscv-${{ hashFiles('**/mkcross-elf.sh') }}
+          path: |
+            ./docker/Dockerfile
       # 本リポジトリをチェックアウトする
       - name: checkout
         uses: actions/checkout@v2
@@ -297,6 +339,13 @@ jobs:
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-arm
     steps:
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          # This is the key right here
+          key: ${{ runner.os }}-riscv-${{ hashFiles('**/mkcross-elf.sh') }}
+          path: |
+            ./docker/Dockerfile
       # 本リポジトリをチェックアウトする
       - name: checkout
         uses: actions/checkout@v2
