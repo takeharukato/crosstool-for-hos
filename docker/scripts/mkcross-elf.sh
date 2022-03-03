@@ -1091,6 +1091,17 @@ main(){
 	generate_module_file \
 	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 
+	#
+	# 一時ディレクトリを削除
+	#
+	if [ -f "${build_dir}" ]; then
+	    rm -fr "${build_dir}"
+	fi
+
+	if [ -f "${src_dir}" ]; then
+	    rm -fr "${src_dir}"
+	fi
+
 	export PATH="${orig_path}"
     done
 
