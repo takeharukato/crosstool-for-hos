@@ -35,7 +35,6 @@ jobs:
   # Ubuntu環境のVMでイメージを構築
   runs-on: ubuntu-latest
   env:
-    # CPU
     TARGET_CPUS: "riscv32 riscv64"
     # イメージ名
     IMAGE_NAME: crosstool-for-hos-riscv
