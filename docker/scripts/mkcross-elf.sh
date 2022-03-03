@@ -1039,6 +1039,34 @@ EOF
 
 }
 
+#
+#環境準備
+#
+prepare(){
+
+    apt update;
+
+    apt install -y language-pack-ja-base language-pack-ja
+
+    apt install -y git ninja-build python3 python3-dev swig
+
+    apt install -y autoconf automake autotools-dev curl python3 libmpc-dev \
+    libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf \
+    libtool patchutils bc zlib1g-dev libexpat-dev lmod
+
+    apt install -y giflib-tools libpng-dev libtiff-dev libgtk-3-dev \
+    libncursesw6 libncurses5-dev libncursesw5-dev libgnutls30 nettle-dev \
+    libgcrypt20-dev libsdl2-dev libguestfs-tools python3-brlapi \
+    bluez-tools bluez-hcidump bluez libusb-dev libcap-dev libcap-ng-dev \
+    libiscsi-dev  libnfs-dev libguestfs-dev libcacard-dev liblzo2-dev \
+    liblzma-dev libseccomp-dev libssh-dev libssh2-1-dev libglu1-mesa-dev \
+    mesa-common-dev freeglut3-dev ngspice-dev libattr1-dev libaio-dev \
+    libtasn1-dev google-perftools libvirglrenderer-dev multipath-tools \
+    libsasl2-dev libpmem-dev libudev-dev libcapstone-dev librdmacm-dev \
+    libibverbs-dev libibumad-dev libvirt-dev libffi-dev libbpfcc-dev \
+    libdaxctl-dev
+}
+
 main(){
     local cpu
     local prefix
@@ -1048,14 +1076,26 @@ main(){
     local target_name
     local toolchain_type
 
+    #
+    # 事前準備
+    #
     orig_path="${PATH}"
 
     mkdir -p ${LMOD_MODULE_DIR}
     mkdir -p ${SHELL_INIT_DIR}
     mkdir -p ${DOWNLOADS_DIR}
 
+    # 開発環境セットアップ
+    prepare
+
+    #
+    # クロス環境構築
+    #
+
+    #アーカイブのダウンロード
     download_archives
 
+    # 各CPU向けのコンパイラを生成
     for cpu in "${targets[@]}"
     do
 
