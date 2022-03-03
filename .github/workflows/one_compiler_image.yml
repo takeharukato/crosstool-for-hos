@@ -39,6 +39,7 @@ jobs:
       TARGET_CPUS: "riscv32 riscv64"
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-riscv
+    steps:
       # 環境変数/ディレクトリ設定
       - name: Environment variable and work directory
         run: |
