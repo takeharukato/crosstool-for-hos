@@ -272,8 +272,9 @@ forkしたリポジトリで実行する場合, 以下の事前準備が必要�
 6. Generate tokenボタンを押します
 7. 発行されたPATをテキストファイルに保存します
 8. 本リポジトリのSettingsを開きます
-9. 右上のNew secretをクリックします
-10. Secretの作成画面で, NameをCR_PAT(本ファイル内で参照している名前)
+9. 左側のSecretsメニューにあるActionsをクリックします
+10. 右上のNew repository secretをクリックします
+11. Secretの作成画面で, NameをCR_PAT(本ファイル内で参照している名前)
      に設定し,Valueに, 上記で獲得したPATを貼り付けてAdd secretをクリッ
      クします.
 
