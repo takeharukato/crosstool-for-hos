@@ -31,18 +31,18 @@ on:
       - 'docker/scripts/mkcross-elf.sh'
       - 'templates/Dockerfiles/Dockerfile.tmpl'
 jobs:
-    riscv_image:
-    # Ubuntu環境のVMでイメージを構築
-    runs-on: ubuntu-latest
-    env:
-      # CPU
-      TARGET_CPUS: "riscv32 riscv64"
-      # イメージ名
-      IMAGE_NAME: crosstool-for-hos-riscv
-      # 環境変数/ディレクトリ設定
-      - name: Environment variable and work directory
-        run: |
-          echo "Target CPUS: ${{ env.TARGET_CPUS }}"
-          mkdir -p workdir
-          cp -a docker/* workdir
-          rm -f workdir/Dockerfile
+  riscv_image:
+  # Ubuntu環境のVMでイメージを構築
+  runs-on: ubuntu-latest
+  env:
+    # CPU
+    TARGET_CPUS: "riscv32 riscv64"
+    # イメージ名
+    IMAGE_NAME: crosstool-for-hos-riscv
+    # 環境変数/ディレクトリ設定
+    - name: Environment variable and work directory
+      run: |
+        echo "Target CPUS: ${{ env.TARGET_CPUS }}"
+        mkdir -p workdir
+        cp -a docker/* workdir
+        rm -f workdir/Dockerfile
