@@ -321,6 +321,12 @@ https://uzimihsr.github.io/post/2020-10-11-github-action-publish-docker-image-gh
   す。
 * `run`    ローカル環境で作成したコンテナイメージに入ります。
 * `clean-images` ローカル環境のコンテナイメージを削除します。
+* `build-each` 各CPU向けのコンテナイメージを作成します。
+* `build-and-push-each` 各CPU向けのコンテナイメージを作成し, GitHub
+  Container Registryに登録します(パーソナルトークンを記載した
+  registry/ghcr.txtと環境変数`GITHUB_USER`にパーソナルトークンに対応し
+  たGit Hubアカウント名を設定する必要があります)
+
 
 ## スクリプトの修正
 

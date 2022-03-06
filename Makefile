@@ -9,8 +9,8 @@
 	clean-workdir build-and-push-each
 
 #ターゲットCPU
-# TARGET_CPUS=sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw
-TARGET_CPUS=h8300
+TARGET_CPUS=sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw
+# TARGET_CPUS=h8300
 
 IMAGE_NAME=crosstool-for-hos
 
