@@ -5,11 +5,12 @@
 # http://sourceforge.jp/projects/hos/
 #
 
-.PHONY: release build build-each run clean clean-images dist-clean prepare clean-workdir
+.PHONY: release build build-each run clean clean-images dist-clean prepare \
+	clean-workdir build-and-push-each
 
 #ターゲットCPU
-TARGET_CPUS=sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw
-#TARGET_CPUS=h8300 sh2
+# TARGET_CPUS=sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw
+TARGET_CPUS=h8300
 
 IMAGE_NAME=crosstool-for-hos
 
@@ -27,9 +28,19 @@ define BUILD_IMAGE_ONE
 	sed -e \
 	"s|# __TARGET_CPU_ENV_LINE__|ENV TARGET_CPUS=\"$1\"|g" | \
 	tee workdir/Dockerfile;
-	docker build -t "${IMAGE_NAME}"-$1 workdir 2>&1 |\
+	docker build -t "ghcr.io/${GITHUB_USER}/${IMAGE_NAME}-$1:latest" workdir 2>&1 |\
 	tee build-$1.log;
 endef
+
+define BUILD_AND_PUSH_IMAGE_ONE
+	$(call BUILD_IMAGE_ONE,$1)
+	if [ -f registry/ghcr.txt ]; then \
+		cat registry/ghcr.txt | docker login ghcr.io -u ${GITHUB_USER} --password-stdin; \
+		docker push ghcr.io/${GITHUB_USER}/${IMAGE_NAME}-$1:latest; \
+		docker logout; \
+	fi;
+endef
+
 
 
 clean-workdir:
@@ -52,11 +63,16 @@ build: release prepare
 	's|# __TARGET_CPU_ENV_LINE__|ENV TARGET_CPUS="${TARGET_CPUS}"|g' | \
 	tee workdir/Dockerfile;\
 	docker build -t ${IMAGE_NAME} workdir 2>&1 |tee build.log
-#	$(call CLEAN_WORKDIR)
+	$(call CLEAN_WORKDIR)
 
 build-each: prepare
 	$(foreach cpu, ${TARGET_CPUS},$(call BUILD_IMAGE_ONE,${cpu}))
-#	$(call CLEAN_WORKDIR)
+	$(call CLEAN_WORKDIR)
+
+
+build-and-push-each: prepare
+	$(foreach cpu, ${TARGET_CPUS},$(call BUILD_AND_PUSH_IMAGE_ONE,${cpu}))
+	$(call CLEAN_WORKDIR)
 
 run:
 	docker run -it ${IMAGE_NAME}
