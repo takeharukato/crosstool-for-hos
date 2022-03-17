@@ -26,6 +26,7 @@ on:
     # mainブランチに, scripts/mkcross-elf.shをpushしたら実行
     branches:
       - main
+      - github-actions
     paths:
       - 'docker/scripts/mkcross-elf.sh'
       - 'templates/Dockerfiles/Dockerfile.tmpl'
