@@ -37,10 +37,9 @@ jobs:
       matrix:
         image-cpus: ['riscv', 'sh2']
         include:
-          - image-cpus: 'riscv'
+          - image-cpus: riscv
             target-cpus: "riscv32 riscv64"
-        include:
-          - image-cpus: 'sh2'
+          - image-cpus: sh2
             target-cpus: "sh2"
     env:
       # CPU
