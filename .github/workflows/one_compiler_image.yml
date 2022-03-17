@@ -340,7 +340,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # CPU
-      TARGET_CPUS: "microblaze"
+      TARGET_CPUS: "microblaze microblazeel"
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-microblaze
     steps:

@@ -12,7 +12,7 @@
 
 # コンパイル対象CPU
 if [ "x${TARGET_CPUS}" = "x" ]; then
-    TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw"
+    TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze microblazeel arm armhw"
     #TARGET_CPUS="h8300 sh2 i386 riscv32 riscv64"
     #TARGET_CPUS="h8300"
     echo "No target cpus specified, build all: ${TARGET_CPUS}"
@@ -76,6 +76,7 @@ declare -A qemu_targets=(
     ["arm"]="arm-softmmu,arm-linux-user"
     ["armhw"]="arm-softmmu,arm-linux-user"
     ["microblaze"]="microblaze-softmmu,microblaze-linux-user"
+    ["microblazeel"]="microblaze-softmmu,microblaze-linux-user"
     )
 
 #
@@ -90,6 +91,7 @@ declare -A qemu_cpus=(
     ["arm"]="arm"
     ["armhw"]="arm"
     ["microblaze"]="microblaze"
+    ["microblazeel"]="microblaze"
     )
 
 #
