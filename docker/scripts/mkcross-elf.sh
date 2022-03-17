@@ -275,6 +275,7 @@ cross_binutils(){
     local toolchain_type="$6"
     local sys_root="${prefix}/rfs"
     local key="binutils"
+    local sim_arg
     local archive
     local tool
     local rmfile
@@ -305,18 +306,29 @@ cross_binutils(){
     fi
     mkdir -p "${build_dir}"
 
+    #
+    # Simulator
+    #
+    sim_arg=""
+    case "${cpu}" in
+	microblaze | microblazeel)
+	    sim_arg="--disable-sim"
+	    ;;
+    esac
+
     pushd "${src_dir}"
     tar xf ${DOWNLOADS_DIR}/${archive}
     popd
 
     pushd "${build_dir}"
-    ${src_dir}/${tool}/configure                          \
+    ${src_dir}/${tool}/configure                              \
 	      --prefix="${prefix}"                            \
 	      --target="${target}"                            \
 	      --with-local-prefix="${prefix}/${target}"       \
 	      --disable-shared                                \
 	      --disable-werror                                \
 	      --disable-nls                                   \
+	      ${sim_arg}                                      \
 	      --with-sysroot="${sys_root}"
     make -j`nproc`
     make install
@@ -747,6 +759,7 @@ cross_gdb(){
     local rmfile
     local tool
     local archive
+    local sim_arg
 
     echo "@@@ gdb @@@"
     echo "Prefix:${prefix}"
@@ -802,6 +815,16 @@ cross_gdb(){
 	    ;;
     esac
 
+    #
+    # Simulator
+    #
+    sim_arg=""
+    case "${cpu}" in
+	microblaze | microblazeel)
+	    sim_arg="--disable-sim"
+	    ;;
+    esac
+
     pushd "${src_dir}"
     tar xf ${DOWNLOADS_DIR}/${archive}
     popd
@@ -834,6 +857,7 @@ cross_gdb(){
 	      --target="${target}"                            \
 	      --with-local-prefix="${prefix}/${target}"       \
 	      ${python_arg}                                   \
+	      ${sim_arg}                                      \
 	      --disable-werror                                \
 	      --disable-nls                                   \
 
