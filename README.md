@@ -29,7 +29,7 @@ Hyper Operating System の開発・試験に使用することを想定してい
 | riscv | 32bit RISC-V 用 | /opt/hos/cross/riscv32 | RISCV32-UNKNOWN-ELF-GCC |
 | riscv | 64bit RISC-V 用 | /opt/hos/cross/riscv64 | RISCV64-UNKNOWN-ELF-GCC |
 
-arm, mips, riscvのイメージには, 浮動小数点演算方式, エンディアン, ビット
+arm, microblaze, mips, riscvのイメージには, 浮動小数点演算方式, エンディアン, ビット
 数などの違いにより, 複数のコンパイラが含まれています。
 
 # イメージ取得方法
