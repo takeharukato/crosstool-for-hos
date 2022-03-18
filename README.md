@@ -22,8 +22,9 @@ Hyper Operating System の開発・試験に使用することを想定してい
 |  i386  |  IA32用  | /opt/hos/cross/i386 | I386-UNKNOWN-ELF-GCC |
 |  arm  |  32bit Arm soft float 用  |  /opt/hos/cross/arm | ARM-NONE-EABI-GCC |
 |  arm  |  32bit Arm hard float 用  |  /opt/hos/cross/armhw | ARM-EABIHF-GCC |
-|  microblaze  |  MicroBlaze 用  |  /opt/hos/cross/microblaze | MICROBLAZE-UNKNOWN-ELF-GCC |
-| mips | 32bit mips big-endian 用 | /opt/hos/cross/mips | MIPS-UNKNOWN-ELF-GCC |
+|  microblaze  |  MicroBlaze big-endian 用  |  /opt/hos/cross/microblaze | MICROBLAZE-UNKNOWN-ELF-GCC |
+|  microblazeel  |  MicroBlaze little-endian 用  |  /opt/hos/cross/microblazeel | MICROBLAZEEL-UNKNOWN-ELF-GCC |
+| mips | 32bit MIPS big-endian 用 | /opt/hos/cross/mips | MIPS-UNKNOWN-ELF-GCC |
 | mips | 32bit MIPS little-endian 用 | /opt/hos/cross/mipsel | MIPSEL-UNKNOWN-ELF-GCC |
 | riscv | 32bit RISC-V 用 | /opt/hos/cross/riscv32 | RISCV32-UNKNOWN-ELF-GCC |
 | riscv | 64bit RISC-V 用 | /opt/hos/cross/riscv64 | RISCV64-UNKNOWN-ELF-GCC |

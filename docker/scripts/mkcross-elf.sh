@@ -12,8 +12,7 @@
 
 # コンパイル対象CPU
 if [ "x${TARGET_CPUS}" = "x" ]; then
-    TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze arm armhw"
-    #TARGET_CPUS="h8300 sh2 i386 riscv32 riscv64"
+    TARGET_CPUS="sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze microblazeel arm armhw"
     #TARGET_CPUS="h8300"
     echo "No target cpus specified, build all: ${TARGET_CPUS}"
 else
@@ -76,6 +75,7 @@ declare -A qemu_targets=(
     ["arm"]="arm-softmmu,arm-linux-user"
     ["armhw"]="arm-softmmu,arm-linux-user"
     ["microblaze"]="microblaze-softmmu,microblaze-linux-user"
+    ["microblazeel"]="microblaze-softmmu,microblaze-linux-user"
     )
 
 #
@@ -90,6 +90,7 @@ declare -A qemu_cpus=(
     ["arm"]="arm"
     ["armhw"]="arm"
     ["microblaze"]="microblaze"
+    ["microblazeel"]="microblaze"
     )
 
 #
@@ -273,6 +274,7 @@ cross_binutils(){
     local toolchain_type="$6"
     local sys_root="${prefix}/rfs"
     local key="binutils"
+    local sim_arg
     local archive
     local tool
     local rmfile
@@ -303,18 +305,29 @@ cross_binutils(){
     fi
     mkdir -p "${build_dir}"
 
+    #
+    # Simulator
+    #
+    sim_arg=""
+    case "${cpu}" in
+	microblaze | microblazeel)
+	    sim_arg="--disable-sim"
+	    ;;
+    esac
+
     pushd "${src_dir}"
     tar xf ${DOWNLOADS_DIR}/${archive}
     popd
 
     pushd "${build_dir}"
-    ${src_dir}/${tool}/configure                          \
+    ${src_dir}/${tool}/configure                              \
 	      --prefix="${prefix}"                            \
 	      --target="${target}"                            \
 	      --with-local-prefix="${prefix}/${target}"       \
 	      --disable-shared                                \
 	      --disable-werror                                \
 	      --disable-nls                                   \
+	      ${sim_arg}                                      \
 	      --with-sysroot="${sys_root}"
     make -j`nproc`
     make install
@@ -745,6 +758,7 @@ cross_gdb(){
     local rmfile
     local tool
     local archive
+    local sim_arg
 
     echo "@@@ gdb @@@"
     echo "Prefix:${prefix}"
@@ -800,6 +814,16 @@ cross_gdb(){
 	    ;;
     esac
 
+    #
+    # Simulator
+    #
+    sim_arg=""
+    case "${cpu}" in
+	microblaze | microblazeel)
+	    sim_arg="--disable-sim"
+	    ;;
+    esac
+
     pushd "${src_dir}"
     tar xf ${DOWNLOADS_DIR}/${archive}
     popd
@@ -832,6 +856,7 @@ cross_gdb(){
 	      --target="${target}"                            \
 	      --with-local-prefix="${prefix}/${target}"       \
 	      ${python_arg}                                   \
+	      ${sim_arg}                                      \
 	      --disable-werror                                \
 	      --disable-nls                                   \
 
