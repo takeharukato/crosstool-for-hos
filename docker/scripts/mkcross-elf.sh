@@ -75,7 +75,7 @@ declare -A qemu_targets=(
     ["arm"]="arm-softmmu,arm-linux-user"
     ["armhw"]="arm-softmmu,arm-linux-user"
     ["microblaze"]="microblaze-softmmu,microblaze-linux-user"
-    ["microblazeel"]="microblaze-softmmu,microblaze-linux-user"
+    ["microblazeel"]="microblazeel-softmmu,microblazeel-linux-user"
     )
 
 #
