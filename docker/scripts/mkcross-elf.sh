@@ -90,7 +90,7 @@ declare -A qemu_cpus=(
     ["arm"]="arm"
     ["armhw"]="arm"
     ["microblaze"]="microblaze"
-    ["microblazeel"]="microblaze"
+    ["microblazeel"]="microblazeel"
     )
 
 #
