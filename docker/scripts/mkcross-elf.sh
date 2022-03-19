@@ -94,6 +94,17 @@ declare -A qemu_cpus=(
     )
 
 #
+# QEmuの起動オプション
+#
+declare -A qemu_opts=(
+    ["i386"]="-boot a \
+	-drive file=sample.img,format=raw,if=floppy,media=disk,readonly=off,index=0 \
+	-serial mon:stdio -nographic"
+    ["riscv32"]="-bios none -machine virt -m 32M -serial mon:stdio -nographic"
+    ["riscv64"]="-bios none -machine virt -m 32M -serial mon:stdio -nographic"
+    )
+
+#
 # ターゲット名
 #
 declare -A cpu_target_names=(
@@ -110,6 +121,10 @@ declare -A cpu_target_cflags=(
     ["h8300-elf"]="-mh"
     )
 
+#
+# リモートGDB接続先ポート
+#
+MKCROSS_REMOTE_GDB_PORT=1234
 ## -- 動作設定関連変数のおわり --
 
 #
@@ -120,6 +135,11 @@ MKCROSS_SCRIPTS_DIR=$(cd $(dirname $0);pwd)
 #パッチ配置先ディレクトリ
 #
 MKCROSS_PATCHES_DIR=${MKCROSS_SCRIPTS_DIR}/patches
+#
+#vscodeのテンプレート
+#
+MKCROSS_VSCODE_TEMPL_DIR=${MKCROSS_SCRIPTS_DIR}/vscode
+
 #
 #インストール先
 #
@@ -1026,6 +1046,156 @@ EOF
 }
 
 #
+# generate_vscode_file ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
+#
+generate_vscode_file(){
+    local cpu="$1"
+    local target="$2"
+    local prefix="$3"
+    local key="lmod"
+    local mod_file
+    local target_var
+    local qemu_cpu
+    local qemu_opt
+    local vscode_workspace_dir
+    local vscode_devcontainer_dir
+    local vscode_vscode_dir
+
+    target_var=`echo ${target}|sed -e 's|-|_|g'`
+
+    qemu_cpu="${qemu_cpus[${cpu}]}"
+    qemu_opt="${qemu_opts[${cpu}]}"
+
+    echo "@@@ Visual Studio Code Dev Container Settings @@@"
+    echo "target:${target}"
+    echo "Sysroot:${sys_root}"
+    echo "BuildDir:${build_dir}"
+    echo "SourceDir:${src_dir}"
+    echo "ImageName:${THIS_IMAGE_NAME}"
+    if [ "x${qemu_cpu}" != "x" ]; then
+	echo "QEmuCPUName:${qemu_cpu}"
+    fi
+    if [ "x${qemu_opt}" != "x" ]; then
+	echo "QEmuCPUName:${qemu_opt}"
+    fi
+    echo "var: ${target_var}"
+
+    # vscodeのワークスペース定義ディレクトリ
+    vscode_workspace_dir="${prefix}/vscode"
+    # vscodeの.devcontainerディレクトリ
+    vscode_devcontainer_dir="${vscode_workspace_dir}/_devcontainer"
+    # vscodeの.vscodeディレクトリ
+    vscode_vscode_dir="${vscode_workspace_dir}/_vscode"
+
+    # vscodeのワークスペース定義ディレクトリを作成
+    mkdir -p "${vscode_workspace_dir}"
+    # vscodeの.devcontainerディレクトリを作成
+    mkdir -p "${vscode_devcontainer_dir}"
+    # vscodeの.vscodeディレクトリを作成
+    mkdir -p "${vscode_vscode_dir}"
+
+    #
+    # 共通ファイル
+    #
+    rm -f "${vscode_workspace_dir}/hos-${cpu}.code-workspace"
+    cat "${MKCROSS_VSCODE_TEMPL_DIR}/sample.code-workspace" |\
+	sed -e "s|__CPU__|${cpu}|g" \
+	    -e "s|__PREFIX__|${prefix}|g" \
+	    -e "s|__GCC_ARCH__|${target}-|g" \
+	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
+	    -e "s|__QEMU__|${qemu_cpu}|g" \
+	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
+	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+	> "${vscode_workspace_dir}/hos-${cpu}.code-workspace"
+
+    #
+    #.vscode/c_cpp_properties.json
+    #
+    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/c_cpp_properties.json" |\
+	sed -e "s|__CPU__|${cpu}|g" \
+	    -e "s|__PREFIX__|${prefix}|g" \
+	    -e "s|__GCC_ARCH__|${target}-|g" \
+	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
+	    -e "s|__QEMU__|${qemu_cpu}|g" \
+	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
+	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+	    > "${vscode_vscode_dir}/c_cpp_properties.json"
+
+
+    #
+    #.vscode/launch.json
+    #
+    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/launch.json" |\
+	sed -e "s|__CPU__|${cpu}|g" \
+	    -e "s|__PREFIX__|${prefix}|g" \
+	    -e "s|__GCC_ARCH__|${target}-|g" \
+	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
+	    -e "s|__QEMU__|${qemu_cpu}|g" \
+	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
+	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+	    > "${vscode_vscode_dir}/launch.json"
+
+    #
+    #.vscode/tasks.json
+    #
+    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/tasks.json" |\
+	sed -e "s|__CPU__|${cpu}|g" \
+	    -e "s|__PREFIX__|${prefix}|g" \
+	    -e "s|__GCC_ARCH__|${target}-|g" \
+	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
+	    -e "s|__QEMU__|${qemu_cpu}|g" \
+	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
+	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+	    > "${vscode_vscode_dir}/tasks.json"
+
+    #
+    #.vscode/tasks.json
+    #
+    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/tasks.json" |\
+	sed -e "s|__CPU__|${cpu}|g" \
+	    -e "s|__PREFIX__|${prefix}|g" \
+	    -e "s|__GCC_ARCH__|${target}-|g" \
+	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
+	    -e "s|__QEMU__|${qemu_cpu}|g" \
+	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
+	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+	    > "${vscode_vscode_dir}/tasks.json"
+
+    #
+    #.devcontainer/devcontainer.json
+    #
+    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/devcontainer.json" |\
+	sed -e "s|__CPU__|${cpu}|g" \
+	    -e "s|__PREFIX__|${prefix}|g" \
+	    -e "s|__GCC_ARCH__|${target}-|g" \
+	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
+	    -e "s|__QEMU__|${qemu_cpu}|g" \
+	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
+	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+	    > "${vscode_devcontainer_dir}/devcontainer.json"
+
+    #
+    #.devcontainer/Dockerfile
+    #
+    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/Dockerfile" |\
+	sed -e "s|__CPU__|${cpu}|g" \
+	    -e "s|__PREFIX__|${prefix}|g" \
+	    -e "s|__GCC_ARCH__|${target}-|g" \
+	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
+	    -e "s|__QEMU__|${qemu_cpu}|g" \
+	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
+	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+	    > "${vscode_devcontainer_dir}/Dockerfile"
+}
+
+#
 #generate_shell_init
 # 開発環境初期化スクリプトを導入する
 #
@@ -1153,8 +1323,13 @@ main(){
 	cross_gdb "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 
 	build_qemu  "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+
 	generate_module_file \
 	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+
+	generate_vscode_file \
+	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+
 
 	#
 	# 一時ディレクトリを削除

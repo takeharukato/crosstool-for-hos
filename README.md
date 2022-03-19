@@ -302,11 +302,10 @@ https://uzimihsr.github.io/post/2020-10-11-github-action-publish-docker-image-gh
   Actionsでコンテナイメージを作成する際に使用するDockerfileのテンプレー
   トを生成するMakefileです。
 * docker/Dockerfile コンテナイメージを作成するためのDockerfileです
-* scripts/mkcross-elf.sh クロスコンパイル環境を構築するためのスクリプ
+* docker/scripts/mkcross-elf.sh クロスコンパイル環境を構築するためのスクリプ
   トです。
-* templates/Dockerfiles/Dockerfile.tmpl GitHub Actionsでコンテナイメー
-ジを作成する際に使用するDockerfileのテンプレートです。`make release`実
-行時に生成されます。
+* docker/vscode Visual Studio Code用の設定ファイルのテンプレートを格納
+                したディレクトリです。
 * .github/workflows/push_container_image.yml コンテナイメージの作成と
    GitHub Container Registryへのイメージ登録までを行うGitHub Actions定
    義です。
@@ -315,9 +314,6 @@ https://uzimihsr.github.io/post/2020-10-11-github-action-publish-docker-image-gh
 
 以下のMakefile ターゲットが定義されています:
 
-* `release`  コンテナイメージを作成するためのDockerfileからGitHub
-  Actionsでコンテナイメージを作成する際に使用するDockerfileのテンプレー
-  トを生成
 * `build`  ローカル環境のDockerを使用して, コンテナイメージを作成しま
   す。
 * `run`    ローカル環境で作成したコンテナイメージに入ります。
@@ -408,14 +404,23 @@ arm-softmmu,arm-linux-user
 
 ## qemu_cpus
 
-TARGET_CPUSに記述したCPU名をキーに, QEmuのcpu名を取り出すための連想配列です。
+TARGET\_CPUSに記述したCPU名をキーに, QEmuのcpu名を取り出すための連想配列です。
 QEmuのシステムシミュレータのコマンド名をEnvironment Modules/Lmodの環境
 変数に設定するために使用しています。
 テストの自動化を行うために本変数を導入しています。
-将来的には, qemu_targetsを廃止し, qemu_cpusから得たCPU名からQEmuターゲッ
+将来的には, qemu\_targetsを廃止し, qemu_cpusから得たCPU名からQEmuターゲッ
 トを指定するようにする予定です。
 
 記述例: ハードウエアFPUを使用するArm(armhw)のQEmuのCPU名をarmに設定す
+```
+["armhw"]="arm"
+```
+
+## qemu_opts
+
+TARGET\_CPUSに記述したCPU名をキーに, QEmuの起動オプションを取り出すための連想配列です。
+
+記述例: riscv64用のQEmu起動オプションを
 ```
 ["armhw"]="arm"
 ```
@@ -452,6 +457,92 @@ HOSのコンパイルオプションとの不一致によるバイナリ生成�
 ```
     ["h8300-elf"]="-mh"
 ```
+
+## Visual Studio Code用の設定ファイル
+
+Visual Studio Code(以下`VScode`と略す)を用いてコンテナ内のクロスコンパ
+イラを利用した開発を行うための設定ファイル群を各CPUのクロスコンパイラ
+のインストールディレクトリ中の`vscode`ディレクトリ内に格納しています。
+
+ホスト上で, 以下の手順を実施することで, Hyper Operating System用の開発
+環境をセットアップすることができます。
+
+1. コンテナイメージを取得する
+コマンド例: riscv64用のコンテナイメージを取得
+```:shell
+docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv64
+```
+2. コンテナを起動する
+コマンド例: riscv64用のコンテナを対話型で起動し, `hos`という名前をつけ
+る
+```:shell
+docker run --name hos -it ghcr.io/takeharukato/crosstool-for-hos-riscv64
+```
+
+3. コンテナを停止する
+コマンド例: 起動したコンテナを一時停止する
+```:shell
+docker stop hos
+```
+
+4. コンテナ内の設定ファイルをホストにコピーする
+コピー先のディレクトリがVScodeのワークスペースディレクトリになります。
+コマンド例: コンテナ内の設定ファイルをホスト上のカレントディレクトリ
+(ワークスペースディレクトリ)にコピーする
+```:shell
+docker cp hos:/opt/hos/cross/riscv64/vscode .
+```
+
+5. コンテナを削除する
+```:shell
+docker rm hos
+```
+
+6. ホストにコピーしたワークスペースファイル(hos-riscv64.code-workspace)をVScodeから開く
+7. HOSのリポジトリをホスト上のワークスペースディレクトリにクローンします
+   `VScode`の`Git クローン`コマンドを用いることでワークスペースにクロー
+   ンします。
+8. `_vscode/launch.json`, `_vscode/tasks.json`の以下の部分を環境に合わせて修正します。
+    * __HOS_USER_PROGRAM_FILE__ デバッグ情報を含んだELFファイルのファ
+    イル名を指定します(例:sampledbg.elf)。
+	* __HOS_USER_PROGRAM_DIR__ ユーザプログラムを構築する際のカレント
+    ディレクトリを`ワークスペースからの相対パス`で指定します。例えば,
+	ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポ
+    ジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディ
+    レクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,
+	`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き
+    換えます。
+	* __HOS_USER_PROGRAM_IMG__ qemuのシステムシミュレータ
+      (qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名
+      を指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファ
+      イル名に書き換えます。 ELFの代わりにターゲット用のイメージファイ
+      ルを読み込む場合(例: IA32)は, そのイメージファイル名に書き換えます。
+9. `_devcontainer`ディレクトリを`.devcontainer`にリネームします。
+10. `_vscode`ディレクトリを`.vscode`にリネームします。
+11. ワークスペースファイル(hos-riscv64.code-workspace)をコンテナ内で開
+き直します。`表示`メニューの`コマンドパレット`から`Remote-Container:
+Rebuild and Reopen in Container`を選択し, ワークスペースファイルを開き
+ます。
+
+## VSCodeを用いたコンパイル・デバッグ
+
+プログラム構築用に以下のタスクを定義しています。
+`コマンドパレット`から`タスク: タスクの実行`(`Tasks: Run Task`)を選択
+することでコンパイル作業を行うことができます。
+
+* `Build` デバッグオプションなしでバイナリを生成します
+* `DebugBuild` デバッグオプション付きでバイナリを生成します
+* `Clean`  ユーザプログラムのオブジェクトファイルを削除します。
+* `DistClean` カーネルを含めてオブジェクトファイルを削除します(一部ター
+  ゲットのみ)。
+* `LaunchQEmu` QEmuのシステムシミュレータを使用してHOSを起動します
+  (一部ターゲットのみ)。
+
+QEmuのシステムシミュレータとクロスのgdbを用いたデバッグを行うための設
+定ファイル(launch.json)を用意しています。上記の`LaunchQEmu`タスクを実
+行してしばらく待つと, `ポート1234番のサービスが利用可能`になった旨のダ
+イアログがでます。その後, `実行`メニューから`デバッグの開始`を選ぶこと
+で`VSCode`を用いたプログラムのデバッグを行うことが可能です。
 
 ## 付録: EmacsのGrand Unified Debugger modeでデバッグするための設定
 

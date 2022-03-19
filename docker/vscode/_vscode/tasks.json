@@ -1,0 +1,50 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "options": {
+	"env":{"PATH":"__PREFIX__/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+	       "CROSS_COMPILE":"__GCC_ARCH__",
+	       "GCC_ARCH":"__GCC_ARCH__",
+	       "GDB_COMMAND":"__GCC_ARCH__gdb",
+	       "QEMU":"__QEMU__",
+	       "QEMU_OPTS":"__QEMU_OPTS__",
+	       "QEMU_KERNEL_OPT": "__HOS_USER_PROGRAM_IMG__"},
+	"cwd": "${workspaceFolder}/__HOS_USER_PROGRAM_DIR__"
+    },
+    "tasks": [
+        {
+            "label": "Build",
+            "type": "shell",
+            "command": ["make;"]
+        },
+        {
+            "label": "DebugBuild",
+            "type": "shell",
+            "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make;"]
+        },
+        {
+            "label": "Clean",
+            "type": "shell",
+            "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make clean;"]
+        },
+        {
+            "label": "DistClean",
+            "type": "shell",
+            "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make distclean;"]
+        },
+        {
+            "label": "CleanBuild",
+            "type": "shell",
+            "command": ["make;"],
+            "dependsOn": ["DistClean"]
+        },
+        {
+            "label": "LaunchQEmu",
+            "type": "shell",
+            "command": ["${QEMU} ${QEMU_OPTS} -S -gdb tcp::__REMOTE_GDB_PORT__ -kernel ${QEMU_KERNEL_OPT};"],
+            "dependsOn": ["DebugBuild"],
+            "isBackground": true
+        }
+    ]
+}
