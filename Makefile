@@ -5,7 +5,7 @@
 # http://sourceforge.jp/projects/hos/
 #
 
-.PHONY: build build-each run clean clean-images dist-clean prepare \
+.PHONY: release build build-each run clean clean-images dist-clean prepare \
 	clean-workdir build-and-push-each
 
 #ターゲットCPU
@@ -55,6 +55,12 @@ prepare: clean-workdir
 	@cp -a docker/vscode workdir
 	@cp docker/scripts/*.sh workdir/scripts
 
+
+release:
+	cat docker/Dockerfile | \
+	sed -e \
+	's|# __TARGET_CPU_ENV_LINE__|ENV TARGET_CPUS="__REPLACE_TARGET_CPUS__"|g' | \
+	tee templates/Dockerfiles/Dockerfile.tmpl
 
 build: prepare
 	@if [ "x${BUILD_CPU}" != "x" ]; then \
