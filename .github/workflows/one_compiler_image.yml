@@ -30,6 +30,9 @@ on:
       - 'docker/scripts/mkcross-elf.sh'
       - 'templates/Dockerfiles/Dockerfile.tmpl'
 jobs:
+#
+# RISC-V
+#
   riscv_image:
     # Ubuntu環境のVMでイメージを構築
     runs-on: ubuntu-latest
@@ -191,6 +194,108 @@ jobs:
       TARGET_CPUS: "i386"
       # イメージ名
       IMAGE_NAME: crosstool-for-hos-i386
+    steps:
+      # 本リポジトリをチェックアウトする
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      # コンテナイメージを構築するための準備を行う
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # GitHub Container Registryにログインする
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          # コンテナイメージレジストリにGitHub Container Registryを使用
+          registry: ghcr.io
+          # ユーザ名は本リポジトリのオーナのユーザ名を使用
+          username: ${{ github.repository_owner }}
+          # 本リポジトリの`CR_PAT`シークレットを使用してログインする
+          password: ${{ secrets.CR_PAT }}
+      # 環境変数/ディレクトリ設定
+      - name: Environment variable and work directory
+        run: |
+          echo "Target CPUS: ${{ env.TARGET_CPUS }}"
+          mkdir -p workdir
+          cp -a docker/* workdir
+          rm -f workdir/Dockerfile
+          cat templates/Dockerfiles/Dockerfile.tmpl| sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' -e 's|__REPLACE_IMAGE_NAME__|ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest|g' | tee workdir/Dockerfile
+      # コンテナイメージを作成し, GitHub Container Registryに登録する
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          # リポジトリのworkdirにDockerfileがあることを指定
+          context: workdir
+          # イメージ構築後にレジストリへの登録を行う
+          push: true
+          # タグ名を設定する
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
+#
+# MIPS
+#
+  mips_image:
+    # Ubuntu環境のVMでイメージを構築
+    runs-on: ubuntu-latest
+    env:
+      # CPU
+      TARGET_CPUS: "mips mipsel"
+      # イメージ名
+      IMAGE_NAME: crosstool-for-hos-mips
+    steps:
+      # 本リポジトリをチェックアウトする
+      - name: checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      # コンテナイメージを構築するための準備を行う
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      # GitHub Container Registryにログインする
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          # コンテナイメージレジストリにGitHub Container Registryを使用
+          registry: ghcr.io
+          # ユーザ名は本リポジトリのオーナのユーザ名を使用
+          username: ${{ github.repository_owner }}
+          # 本リポジトリの`CR_PAT`シークレットを使用してログインする
+          password: ${{ secrets.CR_PAT }}
+      # 環境変数/ディレクトリ設定
+      - name: Environment variable and work directory
+        run: |
+          echo "Target CPUS: ${{ env.TARGET_CPUS }}"
+          mkdir -p workdir
+          cp -a docker/* workdir
+          rm -f workdir/Dockerfile
+          cat templates/Dockerfiles/Dockerfile.tmpl| sed -e 's|__REPLACE_TARGET_CPUS__|${{ env.TARGET_CPUS }}|g' -e 's|__REPLACE_IMAGE_NAME__|ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest|g' | tee workdir/Dockerfile
+      # コンテナイメージを作成し, GitHub Container Registryに登録する
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          # リポジトリのworkdirにDockerfileがあることを指定
+          context: workdir
+          # イメージ構築後にレジストリへの登録を行う
+          push: true
+          # タグ名を設定する
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:latest
+
+#
+# ARM
+#
+  arm_image:
+    # Ubuntu環境のVMでイメージを構築
+    runs-on: ubuntu-latest
+    env:
+      # CPU
+      TARGET_CPUS: "arm armhw"
+      # イメージ名
+      IMAGE_NAME: crosstool-for-hos-arm
     steps:
       # 本リポジトリをチェックアウトする
       - name: checkout
