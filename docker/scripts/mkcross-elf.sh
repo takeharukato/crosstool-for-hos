@@ -1169,6 +1169,7 @@ generate_vscode_file(){
     #
     #.devcontainer/devcontainer.json
     #
+    echo "@@@ ${vscode_devcontainer_dir}/devcontainer.json @@@"
     cat "${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/devcontainer.json" |\
 	sed -e "s|__CPU__|${cpu}|g" \
 	    -e "s|__PREFIX__|${prefix}|g" \
@@ -1178,11 +1179,12 @@ generate_vscode_file(){
 	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
 	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
 	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	    > "${vscode_devcontainer_dir}/devcontainer.json"
+	    |tee "${vscode_devcontainer_dir}/devcontainer.json"
 
     #
     #.devcontainer/Dockerfile
     #
+    echo "@@@ ${vscode_devcontainer_dir}/Dockerfile @@@"
     cat "${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/Dockerfile" |\
 	sed -e "s|__CPU__|${cpu}|g" \
 	    -e "s|__PREFIX__|${prefix}|g" \
@@ -1192,7 +1194,7 @@ generate_vscode_file(){
 	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
 	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
 	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	    > "${vscode_devcontainer_dir}/Dockerfile"
+	    |tee "${vscode_devcontainer_dir}/Dockerfile"
 }
 
 #

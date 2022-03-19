@@ -58,8 +58,9 @@ prepare: clean-workdir
 
 release:
 	cat docker/Dockerfile | \
-	sed -e \
-	's|# __TARGET_CPU_ENV_LINE__|ENV TARGET_CPUS="__REPLACE_TARGET_CPUS__"|g' | \
+	sed \
+	-e 's|# __TARGET_CPU_ENV_LINE__|ENV TARGET_CPUS="__REPLACE_TARGET_CPUS__"|g'  \
+	-e 's|# __TARGET_IMAGENAME_LINE__|ENV ENV THIS_IMAGE_NAME=="__REPLACE_IMAGE_NAME__"|g' | \
 	tee templates/Dockerfiles/Dockerfile.tmpl
 
 build: prepare
