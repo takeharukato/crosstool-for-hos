@@ -256,6 +256,116 @@ hos@c379e39513d0:~$ module unload RISCV64-UNKNOWN-ELF-GCC
 hos@c379e39513d0:~$
 ```
 
+## Visual Studio Code用の設定ファイル
+
+Visual Studio Code(以下`VScode`と略す)を用いてコンテナ内のクロスコンパ
+イラを利用した開発を行うための設定ファイル群を各CPUのクロスコンパイラ
+のインストールディレクトリ中の`vscode`ディレクトリ内に格納しています。
+
+
+ホスト上で, 以下の手順を実施することで, Hyper Operating System用の開発
+環境をセットアップすることができます。
+
+1. ホスト上に以下の環境を構築します。
+  * Docker環境
+  [Docker Desktop](https://www.docker.com/products/docker-desktop/),
+  または, [Rancher Desktop](https://rancherdesktop.io/)などを導入しま
+  す。`Rancher Desktop`を導入する場合, コンテナランタイムは`docked`を選
+  択します。
+  * Visual Studio Codeの導入
+    [Visual Studio Codeの公式サイト](https://code.visualstudio.com/)か
+    らVisual Studio Codeを導入します。
+  * [Visual Studio Code Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
+  の導入
+  `VSCode`の拡張機能メニューから`Visual Studio Code Remote Development
+  Extension Pack`を導入します。
+  * OpenSSH for Windowsの導入
+    以下のサイトなどを参考に, `OpenSSH for Windows`を用いて, ssh-agentに
+	よる公開鍵認証を行える環境を用意し, `VSCode`から`Git Hub`へのSSH接続
+	を行えるようにします。
+      * [OpenSSH for Windows の使用方法](https://qiita.com/akiakishitai/items/9e661a126b9c6ae24a56)
+      * [Windows 10 で SSH Agent を使用する](https://scientre.hateblo.jp/entry/2021/06/17/windows-ssh-add)
+
+  * `GitHub`拡張機能の導入
+    `VSCode`の`拡張機能`ボタンから`GitHub`を導入します。
+
+2. コンテナイメージを取得する
+コマンド例: riscv64用のコンテナイメージを取得
+```:shell
+docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv64
+```
+3. コンテナを起動する
+コマンド例: riscv64用のコンテナを対話型で起動し, `hos`という名前をつけ
+る
+```:shell
+docker run --name hos -it ghcr.io/takeharukato/crosstool-for-hos-riscv64
+```
+
+4. コンテナを停止する
+コマンド例: 起動したコンテナを一時停止する
+```:shell
+docker stop hos
+```
+
+5. コンテナ内の設定ファイルをホストにコピーする
+コピー先のディレクトリがVScodeのワークスペースディレクトリになります。
+コマンド例: コンテナ内の設定ファイルをホスト上のカレントディレクトリ
+(ワークスペースディレクトリ)にコピーする
+```:shell
+docker cp hos:/opt/hos/cross/riscv64/vscode .
+```
+
+6. コンテナを削除する
+```:shell
+docker rm hos
+```
+
+7. ホストにコピーしたワークスペースファイル(hos-riscv64.code-workspace)をVScodeから開く
+8. HOSのリポジトリをホスト上のワークスペースディレクトリにクローンします
+   `VScode`の`Git クローン`コマンドを用いることでワークスペースにクロー
+   ンします。
+9. `_vscode/launch.json`, `_vscode/tasks.json`の以下の部分を環境に合わせて修正します。
+    * `__HOS_USER_PROGRAM_FILE__` デバッグ情報を含んだELFファイルのファ
+    イル名を指定します(例:sampledbg.elf)。
+	* `__HOS_USER_PROGRAM_DIR__` ユーザプログラムを構築する際のカレント
+    ディレクトリを`ワークスペースからの相対パス`で指定します。例えば,
+	ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポ
+    ジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディ
+    レクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,
+	`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き
+    換えます。
+	* `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ
+      (qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名
+      を指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファ
+      イル名に書き換えます。 ELFの代わりにターゲット用のイメージファイ
+      ルを読み込む場合(例: IA32)は, そのイメージファイル名に書き換えます。
+10. `_devcontainer`ディレクトリを`.devcontainer`にリネームします。
+11. `_vscode`ディレクトリを`.vscode`にリネームします。
+12. ワークスペースファイル(hos-riscv64.code-workspace)をコンテナ内で開
+き直します。`表示`メニューの`コマンドパレット`から`Remote-Container:
+Rebuild and Reopen in Container`を選択し, ワークスペースファイルを開き
+ます。
+
+## VSCodeを用いたコンパイル・デバッグ
+
+プログラム構築用に以下のタスクを定義しています。
+`コマンドパレット`から`タスク: タスクの実行`(`Tasks: Run Task`)を選択
+することでコンパイル作業を行うことができます。
+
+* `Build` デバッグオプションなしでバイナリを生成します
+* `DebugBuild` デバッグオプション付きでバイナリを生成します
+* `Clean`  ユーザプログラムのオブジェクトファイルを削除します。
+* `DistClean` カーネルを含めてオブジェクトファイルを削除します(一部ター
+  ゲットのみ)。
+* `LaunchQEmu` QEmuのシステムシミュレータを使用してHOSを起動します
+  (一部ターゲットのみ)。
+
+QEmuのシステムシミュレータとクロスのgdbを用いたデバッグを行うための設
+定ファイル(launch.json)を用意しています。上記の`LaunchQEmu`タスクを実
+行してしばらく待つと, `ポート1234番のサービスが利用可能`になった旨のダ
+イアログがでます。その後, `実行`メニューから`デバッグの開始`を選ぶこと
+で`VSCode`を用いたプログラムのデバッグを行うことが可能です。
+
 # 開発者向け情報
 
 ## コンテナイメージの自動登録について
@@ -457,92 +567,6 @@ HOSのコンパイルオプションとの不一致によるバイナリ生成�
 ```
     ["h8300-elf"]="-mh"
 ```
-
-## Visual Studio Code用の設定ファイル
-
-Visual Studio Code(以下`VScode`と略す)を用いてコンテナ内のクロスコンパ
-イラを利用した開発を行うための設定ファイル群を各CPUのクロスコンパイラ
-のインストールディレクトリ中の`vscode`ディレクトリ内に格納しています。
-
-ホスト上で, 以下の手順を実施することで, Hyper Operating System用の開発
-環境をセットアップすることができます。
-
-1. コンテナイメージを取得する
-コマンド例: riscv64用のコンテナイメージを取得
-```:shell
-docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv64
-```
-2. コンテナを起動する
-コマンド例: riscv64用のコンテナを対話型で起動し, `hos`という名前をつけ
-る
-```:shell
-docker run --name hos -it ghcr.io/takeharukato/crosstool-for-hos-riscv64
-```
-
-3. コンテナを停止する
-コマンド例: 起動したコンテナを一時停止する
-```:shell
-docker stop hos
-```
-
-4. コンテナ内の設定ファイルをホストにコピーする
-コピー先のディレクトリがVScodeのワークスペースディレクトリになります。
-コマンド例: コンテナ内の設定ファイルをホスト上のカレントディレクトリ
-(ワークスペースディレクトリ)にコピーする
-```:shell
-docker cp hos:/opt/hos/cross/riscv64/vscode .
-```
-
-5. コンテナを削除する
-```:shell
-docker rm hos
-```
-
-6. ホストにコピーしたワークスペースファイル(hos-riscv64.code-workspace)をVScodeから開く
-7. HOSのリポジトリをホスト上のワークスペースディレクトリにクローンします
-   `VScode`の`Git クローン`コマンドを用いることでワークスペースにクロー
-   ンします。
-8. `_vscode/launch.json`, `_vscode/tasks.json`の以下の部分を環境に合わせて修正します。
-    * `__HOS_USER_PROGRAM_FILE__` デバッグ情報を含んだELFファイルのファ
-    イル名を指定します(例:sampledbg.elf)。
-	* `__HOS_USER_PROGRAM_DIR__` ユーザプログラムを構築する際のカレント
-    ディレクトリを`ワークスペースからの相対パス`で指定します。例えば,
-	ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポ
-    ジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディ
-    レクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,
-	`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き
-    換えます。
-	* `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ
-      (qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名
-      を指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファ
-      イル名に書き換えます。 ELFの代わりにターゲット用のイメージファイ
-      ルを読み込む場合(例: IA32)は, そのイメージファイル名に書き換えます。
-9. `_devcontainer`ディレクトリを`.devcontainer`にリネームします。
-10. `_vscode`ディレクトリを`.vscode`にリネームします。
-11. ワークスペースファイル(hos-riscv64.code-workspace)をコンテナ内で開
-き直します。`表示`メニューの`コマンドパレット`から`Remote-Container:
-Rebuild and Reopen in Container`を選択し, ワークスペースファイルを開き
-ます。
-
-## VSCodeを用いたコンパイル・デバッグ
-
-プログラム構築用に以下のタスクを定義しています。
-`コマンドパレット`から`タスク: タスクの実行`(`Tasks: Run Task`)を選択
-することでコンパイル作業を行うことができます。
-
-* `Build` デバッグオプションなしでバイナリを生成します
-* `DebugBuild` デバッグオプション付きでバイナリを生成します
-* `Clean`  ユーザプログラムのオブジェクトファイルを削除します。
-* `DistClean` カーネルを含めてオブジェクトファイルを削除します(一部ター
-  ゲットのみ)。
-* `LaunchQEmu` QEmuのシステムシミュレータを使用してHOSを起動します
-  (一部ターゲットのみ)。
-
-QEmuのシステムシミュレータとクロスのgdbを用いたデバッグを行うための設
-定ファイル(launch.json)を用意しています。上記の`LaunchQEmu`タスクを実
-行してしばらく待つと, `ポート1234番のサービスが利用可能`になった旨のダ
-イアログがでます。その後, `実行`メニューから`デバッグの開始`を選ぶこと
-で`VSCode`を用いたプログラムのデバッグを行うことが可能です。
 
 ## 付録: EmacsのGrand Unified Debugger modeでデバッグするための設定
 
