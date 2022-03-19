@@ -503,16 +503,16 @@ docker rm hos
    `VScode`の`Git クローン`コマンドを用いることでワークスペースにクロー
    ンします。
 8. `_vscode/launch.json`, `_vscode/tasks.json`の以下の部分を環境に合わせて修正します。
-    * __HOS_USER_PROGRAM_FILE__ デバッグ情報を含んだELFファイルのファ
+    * `__HOS_USER_PROGRAM_FILE__` デバッグ情報を含んだELFファイルのファ
     イル名を指定します(例:sampledbg.elf)。
-	* __HOS_USER_PROGRAM_DIR__ ユーザプログラムを構築する際のカレント
+	* `__HOS_USER_PROGRAM_DIR__` ユーザプログラムを構築する際のカレント
     ディレクトリを`ワークスペースからの相対パス`で指定します。例えば,
 	ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポ
     ジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディ
     レクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,
 	`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き
     換えます。
-	* __HOS_USER_PROGRAM_IMG__ qemuのシステムシミュレータ
+	* `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ
       (qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名
       を指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファ
       イル名に書き換えます。 ELFの代わりにターゲット用のイメージファイ
