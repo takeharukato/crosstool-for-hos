@@ -15,6 +15,17 @@
       - [Lmodを用いたコンパイル環境の切り替え](#lmodを用いたコンパイル環境の切り替え)
         - [モジュールによって設定される環境変数](#モジュールによって設定される環境変数)
   - [Visual Studio Codeを用いた開発環境の構築・利用方法](#visual-studio-codeを用いた開発環境の構築利用方法)
+    - [Visual Studio Code環境のセットアップ](#visual-studio-code環境のセットアップ)
+    - [コンテナイメージを取得](#コンテナイメージを取得)
+    - [コンテナの起動](#コンテナの起動)
+    - [コンテナの停止](#コンテナの停止)
+    - [コンテナ内の設定ファイルをホストにコピー](#コンテナ内の設定ファイルをホストにコピー)
+    - [コンテナの削除](#コンテナの削除)
+    - [ワークスペースファイルのオープン](#ワークスペースファイルのオープン)
+    - [HOSソースリポジトリの追加](#hosソースリポジトリの追加)
+    - [`_vscode/launch.json`, `_vscode/tasks.json`の修正](#_vscodelaunchjson-_vscodetasksjsonの修正)
+    - [ディレクトリ名の変更](#ディレクトリ名の変更)
+    - [ワークスペースファイルの再オープン](#ワークスペースファイルの再オープン)
     - [Visual Studio Code環境のセットアップ作業例](#visual-studio-code環境のセットアップ作業例)
     - [launch.json/tasks.jsonの修正例](#launchjsontasksjsonの修正例)
       - [.vscode/launch.jsonの修正点](#vscodelaunchjsonの修正点)
@@ -280,80 +291,97 @@ Visual Studio Codeを用いたコンテナ開発(`devcontainer`開発)のため�
 
 ホスト上で, 以下の手順を実施することで, Hyper Operating System用の開発環境をセットアップすることができます。
 
-1. __Visual Studio Code環境のセットアップ__
+### Visual Studio Code環境のセットアップ
 
-   以下の作業を実施し, Visual Studio Code環境をセットアップします。
+Docker環境, Visual Studio Code環境をセットアップし, Visual Studio Codeのコンテナ開発環境を構築します。
 
-   - __Docker環境の導入__[Docker Desktop](https://www.docker.com/products/docker-desktop/), または, [Rancher Desktop](https://rancherdesktop.io/)などを導入します。`Rancher Desktop`を導入する場合, コンテナランタイムは`dockerd`を選択します。
+- __Docker環境の導入__[Docker Desktop](https://www.docker.com/products/docker-desktop/), または, [Rancher Desktop](https://rancherdesktop.io/)などを導入します。`Rancher Desktop`を導入する場合, コンテナランタイムは`dockerd`を選択します。
 
 - __Visual Studio Codeの導入__
 
-    [Visual Studio Codeの公式サイト](https://code.visualstudio.com/)か
-    らVisual Studio Codeを導入します。
-- [Visual Studio Code Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)の導入
-  `VSCode`の拡張機能メニューから`Visual Studio Code Remote Development
-  Extension Pack`を導入します。
-- __OpenSSH for Windowsの導入__
+  - [Visual Studio Codeの公式サイト](https://code.visualstudio.com/)からVisual Studio Codeを導入します。
 
-    以下のサイトなどを参考に, `OpenSSH for Windows`を用いて, ssh-agentによる公開鍵認証を行える環境を構築し, `VSCode`から`GitHub`へのSSH接続を行えるようにします。
-  - [OpenSSH for Windows の使用方法](https://qiita.com/akiakishitai/items/9e661a126b9c6ae24a56)
-  - [Windows 10 で SSH Agent を使用する](https://scientre.hateblo.jp/entry/2021/06/17/windows-ssh-add)
+  - [Visual Studio Code Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)の導入
+  `VSCode`の拡張機能メニューから`Visual Studio Code Remote Development Extension Pack`を導入します。
+
+- __OpenSSH for Windowsの導入__
+  以下のサイトなどを参考に, `OpenSSH for Windows`を用いて, ssh-agentによる公開鍵認証を行える環境を構築し, `VSCode`から`GitHub`へのSSH接続を行えるようにします。
+      - [OpenSSH for Windows の使用方法](https://qiita.com/akiakishitai/items/9e661a126b9c6ae24a56)
+      - [Windows 10 で SSH Agent を使用する](https://scientre.hateblo.jp/entry/2021/06/17/windows-ssh-add)
 
 - __`GitHub`拡張機能の導入__
     `VSCode`の`拡張機能`ボタンから`GitHub`を導入します。
 
-1. __コンテナイメージを取得します。__
-64bit RISC-V用のコンテナイメージを取得するコマンドの例:
+### コンテナイメージを取得
+
+  64bit RISC-V用のコンテナイメージを取得するコマンドの例:
+
+  ```shell
+  docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv64
+  ```
+
+### コンテナの起動
+
+ 64bit RISC-V用のコンテナを`hos`という名前で, 対話型起動します。
 
 ```shell
-docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv64
-```
-
-2. __コンテナを起動します。__
-64bit RISC-V用のコンテナを`hos`という名前で, 対話型起動します。
-
-```:shell
 docker run --name hos -it ghcr.io/takeharukato/crosstool-for-hos-riscv64
 ```
 
-3. __コンテナを停止します。__
+### コンテナの停止
+
 起動したコンテナを一時停止します。
 
-```:shell
+```shell
 docker stop hos
 ```
 
-4. __コンテナ内の設定ファイルをホストにコピーします。__
+### コンテナ内の設定ファイルをホストにコピー
+
+コンテナ内の設定ファイルをホストにコピーします。
 コピー先のディレクトリがVScodeのワークスペースディレクトリになります。
 以下のコマンドをホストから実行し, コンテナ内の設定ファイルをホスト上のカレントディレクトリ(ワークスペースディレクトリ)にコピーします。
 
-```:shell
+```shell
 docker cp hos:/opt/hos/cross/riscv64/vscode .
 ```
 
-5. __コンテナを削除します。__
+### コンテナの削除
+
 `hos`という名前のコンテナを削除するコマンドの例:
 
-```:shell
+```shell
 docker rm hos
 ```
 
-6. __ホストにコピーしたワークスペースファイルをVScodeから開きます。__
-ワークスペースファイル(hos-riscv64.code-workspace)を`VScode`で開きます。
-7. __HOSのリポジトリをホスト上のワークスペースディレクトリにクローンします。__
-   `VScode`から`Git クローン`コマンドを用いることでワークスペースにクローンします。`表示`メニューのコマンドパレットから`Git クローン(Git: Clone)`を選択し, リポジトリをクローンします。
-8. __`_vscode/launch.json`, `_vscode/tasks.json`を修正します。__
+### ワークスペースファイルのオープン
+
+ホスト上のワークスペースファイル(hos-riscv64.code-workspace)を`VScode`でローカルファイルとして開きます。
+
+### HOSソースリポジトリの追加
+
+HOSのソースリポジトリをホスト上のワークスペースディレクトリにクローンします。 `VScode`から`Git クローン`コマンドを用いることでワークスペースにクローンします。`表示`メニューのコマンドパレットから`Git クローン(Git: Clone)`を選択し, リポジトリをクローンします。
+
+### `_vscode/launch.json`, `_vscode/tasks.json`の修正
+
 `launch.json`, `tasks.json`の以下の部分を環境に合わせて修正します。
-    - `__HOS_USER_PROGRAM_FILE__` デバッグ情報を含んだELFファイルのファイル名を指定します(例:sampledbg.elf)。
 
-    - `__HOS_USER_PROGRAM_DIR__` ユーザプログラムを構築する際のカレントディレクトリを`ワークスペースからの相対パス`で指定します。例えば, ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディレクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き換えます。
+- `__HOS_USER_PROGRAM_FILE__`をデバッグ情報を含んだELFファイルのファイル名を指定します(例:sampledbg.elf)。
 
-    - `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ(qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名を指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファイル名に書き換えます。 ELFの代わりにターゲット用のイメージファイルを読み込む場合(例: IA32)は, そのイメージファイル名に書き換えます。
-9. __`_devcontainer`ディレクトリを`.devcontainer`にリネームします。__
-10. __`_vscode`ディレクトリを`.vscode`にリネームします。__
-11. __ワークスペースファイルをコンテナ内で開き直します。__
+- `__HOS_USER_PROGRAM_DIR__` ユーザプログラムを構築する際のカレントディレクトリを`ワークスペースからの相対パス`で指定します。例えば, ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディレクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き換えます。
+
+- `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ(qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名を指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファイル名に書き換えます。 ELFの代わりにターゲット用のイメージファイルを読み込む場合(例: IA32)は, そのイメージファイル名に書き換えます。
+
+### ディレクトリ名の変更
+
+`_devcontainer`ディレクトリを`.devcontainer`にリネームします
+
+`_vscode`ディレクトリを`.vscode`にリネームします。
+
+### ワークスペースファイルの再オープン
+
 `表示`メニューの`コマンドパレット`から`Remote-Container:
-Rebuild and Reopen in Container`を選択し, ワークスペースファイル(hos-riscv64.code-workspace)を開きます。
+Rebuild and Reopen in Container`を選択し, ワークスペースファイル(hos-riscv64.code-workspace)をコンテナ内で開きます。
 
 ### Visual Studio Code環境のセットアップ作業例
 
