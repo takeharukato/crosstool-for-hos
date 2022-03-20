@@ -273,7 +273,7 @@ hos@c379e39513d0:~$
 
 ## Visual Studio Codeを用いた開発環境の構築・利用方法
 
-Studio Codeを用いたコンテナ開発(`devcontainer`開発)のための各種設定ファイルを, コンテナ内の各CPUのクロスコンパイラのインストールディレクトリ中の`vscode`ディレクトリ内に格納しています。
+Visual Studio Codeを用いたコンテナ開発(`devcontainer`開発)のための各種設定ファイルを, コンテナ内の各CPUのクロスコンパイラのインストールディレクトリ中の`vscode`ディレクトリ内に格納しています。
 
 ホスト上で, 以下の手順を実施することで, Hyper Operating System用の開発環境をセットアップすることができます。
 
