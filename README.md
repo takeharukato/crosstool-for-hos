@@ -125,9 +125,11 @@ ghcr.io/takeharukato/crosstool-for-hos-riscv   latest    831484ca8065   40 minut
 
 ## コンテナ内のコンパイル環境の利用法
 
+本節では, コンテナ内のシェル環境を使用してコンパイル環境を使用する方法について説明します。
+
 ### コンテナ環境への入り方
 
-以下のコマンドを実行することでコンテナイメージ内に入ることができます。
+コンテナ環境に入る際は, `docker`コマンドに`-it`オプションをつけてコンテナを起動(`run`コマンドを実行)します。例えば, 64bit RISC-V環境の場合, 以下のコマンドを実行することでコンテナに入ることができます。
 
 ```shell
 docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
@@ -163,9 +165,9 @@ $ docker run -v /etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro
 
 ### シェル用初期化処理スクリプト
 
-コンテナ内クロスコンパイラを用いた作業を行うための初期化スクリプトが`/opt/hos/cross/etc/shell/init`に導入されています。
+コンテナ内クロスコンパイラを用いた作業を行うための初期化スクリプトを`/opt/hos/cross/etc/shell/init`に導入しています。
 
-作業開始時に以下のコマンドにより環境設定を読み込むことで, Lmodによる環境変数定義を行うことができます。
+作業開始時に以下のコマンドにより環境設定を読み込むことで, [Lmod](https://lmod.readthedocs.io/en/latest/)による環境変数定義を行うことができます。Lmodの使用法については, [Lmodを用いたコンパイル環境の切り替え](#lmodを用いたコンパイル環境の切り替え)を参照ください。
 
 |  シェル |  初期化スクリプト | コマンド |
 | ---- | ---- | ---- |
@@ -194,7 +196,7 @@ hosユーザの`.bashrc`に開発用のシェル初期化スクリプトの読�
 
 #### Lmodを用いたコンパイル環境の切り替え
 
-hosユーザの`.bashrc`から読み込まれる開発用のシェル初期化スクリプト中で, [Lmod](https://lmod.readthedocs.io/en/latest/)の初期化処理が行われます。
+hosユーザの`.bashrc`から読み込まれる開発用のシェル初期化スクリプト中で, Lmodの初期化処理が行われます。
 
 `/opt/hos/cross/lmod/modules`配下にクロスコンパイラを利用するためのLmodのモジュールが格納されており, これらのモジュールを`module load`コマンドによりロードすることでクロスコンパイル用の環境変数が設定されます。
 
@@ -314,23 +316,26 @@ Docker環境, Visual Studio Code環境をセットアップし, Visual Studio Co
 
 ### コンテナイメージを取得
 
-  64bit RISC-V用のコンテナイメージを取得するコマンドの例:
+  コンテナイメージをホストにダウンロードします。例えば, 64bit RISC-V用のコンテナイメージを取得する場合は, 以下のコマンドを入力します。
 
   ```shell
-  docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv64
+  docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv64:latest
   ```
 
 ### コンテナの起動
 
- 64bit RISC-V用のコンテナを`hos`という名前で, 対話型起動します。
+ ホスト上にダウンロードしたコンテナイメージを元にコンテナを起動します。コンテナからのファイルコピー時にコンテナの名前が必要となるため, コンテナ名をつけて, コンテナを起動します。
+
+ 例えば, 64bit RISC-V用のコンテナを`hos`という名前で, 対話型で起動する場合は, 以下のコマンドを入力します。
 
 ```shell
-docker run --name hos -it ghcr.io/takeharukato/crosstool-for-hos-riscv64
+docker run --name hos -it ghcr.io/takeharukato/crosstool-for-hos-riscv64:latest
 ```
 
 ### コンテナの停止
 
-起動したコンテナを一時停止します。
+[コンテナの起動](#コンテナの起動)の節で, 起動したコンテナを一時停止し, コンテナからのファイルのコピー中にファイルが更新されないようにします。
+例えば, `hos`という名前のコンテナを停止する場合は, 以下のコマンドを入力します。
 
 ```shell
 docker stop hos
@@ -348,7 +353,7 @@ docker cp hos:/opt/hos/cross/riscv64/vscode .
 
 ### コンテナの削除
 
-`hos`という名前のコンテナを削除するコマンドの例:
+[コンテナの起動](#コンテナの起動)の節で起動したコンテナを削除します。例えば, `hos`という名前のコンテナを削除する場合は, 以下のコマンドを実行します。
 
 ```shell
 docker rm hos
@@ -370,7 +375,7 @@ HOSのソースリポジトリをホスト上のワークスペースディレ�
 
 - `__HOS_USER_PROGRAM_DIR__` ユーザプログラムを構築する際のカレントディレクトリを`ワークスペースからの相対パス`で指定します。例えば, ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディレクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き換えます。
 
-- `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ(qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名を指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファイル名に書き換えます。 ELFの代わりにターゲット用のイメージファイルを読み込む場合(例: IA32)は, そのイメージファイル名に書き換えます。
+- `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ(qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名やIA32のディスクイメージファイルを指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファイル名に書き換えます。 ELFの代わりにターゲット用のイメージファイルを読み込む場合(IA32など)は, そのイメージファイル名に書き換えます。
 
 ### ディレクトリ名の変更
 

@@ -28,6 +28,7 @@ declare -A tool_names=(
     ["newlib"]="newlib-4.1.0"
     ["gdb"]="gdb-11.2"
     ["qemu"]="qemu-6.2.0"
+    ["i386-binutils"]="binutils-2.37"
     ["h8300-binutils"]="binutils-2.24"
     ["h8300-gcc"]="gcc-8.4.0"
     ["h8300-newlib"]="newlib-2.5.0"
@@ -42,6 +43,7 @@ declare -A tool_archives=(
     ["newlib-4.1.0"]="newlib-4.1.0.tar.gz"
     ["gdb-11.2"]="gdb-11.2.tar.gz"
     ["qemu-6.2.0"]="qemu-6.2.0.tar.xz"
+    ["binutils-2.37"]="binutils-2.37.tar.gz"
     ["binutils-2.24"]="binutils-2.24.tar.gz"
     ["gcc-8.4.0"]="gcc-8.4.0.tar.gz"
     ["newlib-2.5.0"]="newlib-2.5.0.tar.gz"
@@ -57,6 +59,7 @@ declare -A tool_urls=(
     ["newlib-4.1.0"]="https://sourceware.org/pub/newlib/newlib-4.1.0.tar.gz"
     ["gdb-11.2"]="https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.gz"
     ["qemu-6.2.0"]="https://download.qemu.org/qemu-6.2.0.tar.xz"
+    ["binutils-2.37"]="https://ftp.gnu.org/gnu/binutils/binutils-2.37.tar.gz"
     ["binutils-2.24"]="https://ftp.gnu.org/gnu/binutils/binutils-2.24.tar.gz"
     ["gcc-8.4.0"]="https://ftp.gnu.org/gnu/gcc/gcc-8.4.0/gcc-8.4.0.tar.gz"
     ["newlib-2.5.0"]="https://sourceware.org/pub/newlib/newlib-2.5.0.tar.gz"
@@ -97,9 +100,7 @@ declare -A qemu_cpus=(
 # QEmuの起動オプション
 #
 declare -A qemu_opts=(
-    ["i386"]="-boot a \
-	-drive file=sample.img,format=raw,if=floppy,media=disk,readonly=off,index=0 \
-	-serial mon:stdio -nographic"
+    ["i386"]="-boot a -drive file=__HOS_USER_PROGRAM_IMG__,format=raw,if=floppy,media=disk,readonly=off,index=0 -serial mon:stdio -nographic"
     ["riscv32"]="-bios none -machine virt -m 32M -serial mon:stdio -nographic"
     ["riscv64"]="-bios none -machine virt -m 32M -serial mon:stdio -nographic"
     )
