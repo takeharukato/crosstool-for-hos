@@ -309,8 +309,8 @@ Docker環境, Visual Studio Code環境をセットアップし, Visual Studio Co
   - [OpenSSH for Windows の使用方法](https://qiita.com/akiakishitai/items/9e661a126b9c6ae24a56)
   - [Windows 10 で SSH Agent を使用する](https://scientre.hateblo.jp/entry/2021/06/17/windows-ssh-add)
 
-- __`GitHub`拡張機能の導入__
-    `VSCode`の`拡張機能`ボタンから`GitHub`を導入します。
+- __`GitHub Repositories`拡張機能の導入__
+    `VSCode`の`拡張機能`ボタンから[GitHub Repositories](https://marketplace.visualstudio.com/items?itemName=GitHub.remotehub)を導入します。
 
 ### コンテナイメージを取得
 
