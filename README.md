@@ -301,8 +301,7 @@ Docker環境, Visual Studio Code環境をセットアップし, Visual Studio Co
 
   - [Visual Studio Codeの公式サイト](https://code.visualstudio.com/)からVisual Studio Codeを導入します。
 
-  - [Visual Studio Code Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)の導入
-  `VSCode`の拡張機能メニューから`Visual Studio Code Remote Development Extension Pack`を導入します。
+  - `VSCode`の拡張機能メニューから[Visual Studio Code Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)を導入します。
 
 - __OpenSSH for Windowsの導入__
   以下のサイトなどを参考に, `OpenSSH for Windows`を用いて, ssh-agentによる公開鍵認証を行える環境を構築し, `VSCode`から`GitHub`へのSSH接続を行えるようにします。
