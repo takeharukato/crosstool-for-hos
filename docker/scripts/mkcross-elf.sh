@@ -23,10 +23,10 @@ fi
 #アーカイブ展開時のディレクトリ名
 #
 declare -A tool_names=(
-    ["binutils"]="binutils-2.37"
+    ["binutils"]="binutils-2.38"
     ["gcc"]="gcc-11.2.0"
     ["newlib"]="newlib-4.1.0"
-    ["gdb"]="gdb-11.1"
+    ["gdb"]="gdb-11.2"
     ["qemu"]="qemu-6.2.0"
     ["h8300-binutils"]="binutils-2.24"
     ["h8300-gcc"]="gcc-8.4.0"
@@ -37,10 +37,10 @@ declare -A tool_names=(
 #アーカイブファイル名
 #
 declare -A tool_archives=(
-    ["binutils-2.37"]="binutils-2.37.tar.gz"
+    ["binutils-2.38"]="binutils-2.38.tar.gz"
     ["gcc-11.2.0"]="gcc-11.2.0.tar.gz"
     ["newlib-4.1.0"]="newlib-4.1.0.tar.gz"
-    ["gdb-11.1"]="gdb-11.1.tar.gz"
+    ["gdb-11.2"]="gdb-11.2.tar.gz"
     ["qemu-6.2.0"]="qemu-6.2.0.tar.xz"
     ["binutils-2.24"]="binutils-2.24.tar.gz"
     ["gcc-8.4.0"]="gcc-8.4.0.tar.gz"
@@ -52,10 +52,10 @@ declare -A tool_archives=(
 #URL
 #
 declare -A tool_urls=(
-    ["binutils-2.37"]="https://ftp.gnu.org/gnu/binutils/binutils-2.37.tar.gz"
+    ["binutils-2.38"]="https://ftp.gnu.org/gnu/binutils/binutils-2.38.tar.gz"
     ["gcc-11.2.0"]="https://ftp.gnu.org/gnu/gcc/gcc-11.2.0/gcc-11.2.0.tar.gz"
     ["newlib-4.1.0"]="https://sourceware.org/pub/newlib/newlib-4.1.0.tar.gz"
-    ["gdb-11.1"]="https://ftp.gnu.org/gnu/gdb/gdb-11.1.tar.gz"
+    ["gdb-11.2"]="https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.gz"
     ["qemu-6.2.0"]="https://download.qemu.org/qemu-6.2.0.tar.xz"
     ["binutils-2.24"]="https://ftp.gnu.org/gnu/binutils/binutils-2.24.tar.gz"
     ["gcc-8.4.0"]="https://ftp.gnu.org/gnu/gcc/gcc-8.4.0/gcc-8.4.0.tar.gz"

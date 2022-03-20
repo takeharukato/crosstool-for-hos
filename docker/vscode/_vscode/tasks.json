@@ -16,27 +16,42 @@
         {
             "label": "Build",
             "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
             "command": ["make;"]
         },
         {
             "label": "DebugBuild",
             "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
             "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make;"]
         },
         {
             "label": "Clean",
             "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
             "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make clean;"]
         },
         {
             "label": "DistClean",
             "type": "shell",
+            "problemMatcher": [
+                "$gcc"
+            ],
             "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make distclean;"]
         },
         {
             "label": "CleanBuild",
             "type": "shell",
             "command": ["make;"],
+            "problemMatcher": [
+                "$gcc"
+            ],
             "dependsOn": ["DistClean"]
         },
         {
