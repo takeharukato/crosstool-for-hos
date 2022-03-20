@@ -1167,6 +1167,20 @@ generate_vscode_file(){
 	    > "${vscode_vscode_dir}/tasks.json"
 
     #
+    #.vscode/settings.json
+    #
+    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/settings.json" |\
+	sed -e "s|__CPU__|${cpu}|g" \
+	    -e "s|__PREFIX__|${prefix}|g" \
+	    -e "s|__GCC_ARCH__|${target}-|g" \
+	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
+	    -e "s|__QEMU__|qemu-system-${qemu_cpu}|g" \
+	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
+	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+	    > "${vscode_vscode_dir}/settings.json"
+
+    #
     #.devcontainer/devcontainer.json
     #
     echo "@@@ ${vscode_devcontainer_dir}/devcontainer.json @@@"

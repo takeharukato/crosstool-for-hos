@@ -37,6 +37,7 @@ COPY vscode/_devcontainer/devcontainer.json /home/cross/mkcross/vscode/_devconta
 COPY vscode/_vscode/c_cpp_properties.json /home/cross/mkcross/vscode/_vscode
 COPY vscode/_vscode/launch.json /home/cross/mkcross/vscode/_vscode
 COPY vscode/_vscode/tasks.json /home/cross/mkcross/vscode/_vscode
+COPY vscode/_vscode/settings.json /home/cross/mkcross/vscode/_vscode
 # ワークスペース関連ファイルをコピー
 COPY vscode/sample.code-workspace /home/cross/mkcross/vscode
 
