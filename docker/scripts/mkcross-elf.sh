@@ -1243,6 +1243,8 @@ prepare(){
 
     apt update;
 
+    apt install -y sudo
+
     apt install -y language-pack-ja-base language-pack-ja
 
     apt install -y git ninja-build python3 python3-dev swig
@@ -1362,7 +1364,12 @@ main(){
 	    --gecos "Hyper Operating System Developer"  \
 	    --disabled-login                            \
 	    "${DEVLOPER_NAME}"
+
+    # sudoerに追加
     usermod -aG sudo "${DEVLOPER_NAME}"
+
+    # パスワードレスでsudoを実行可能にする
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
     #
     # .bashrcを更新する
