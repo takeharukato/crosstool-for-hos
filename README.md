@@ -305,8 +305,9 @@ Docker環境, Visual Studio Code環境をセットアップし, Visual Studio Co
 
 - __OpenSSH for Windowsの導入__
   以下のサイトなどを参考に, `OpenSSH for Windows`を用いて, ssh-agentによる公開鍵認証を行える環境を構築し, `VSCode`から`GitHub`へのSSH接続を行えるようにします。
-      - [OpenSSH for Windows の使用方法](https://qiita.com/akiakishitai/items/9e661a126b9c6ae24a56)
-      - [Windows 10 で SSH Agent を使用する](https://scientre.hateblo.jp/entry/2021/06/17/windows-ssh-add)
+
+  - [OpenSSH for Windows の使用方法](https://qiita.com/akiakishitai/items/9e661a126b9c6ae24a56)
+  - [Windows 10 で SSH Agent を使用する](https://scientre.hateblo.jp/entry/2021/06/17/windows-ssh-add)
 
 - __`GitHub`拡張機能の導入__
     `VSCode`の`拡張機能`ボタンから`GitHub`を導入します。
