@@ -1,7 +1,6 @@
 # crosstool-for-hos
 
-gcc ELFバイナリ向けクロスコンパイラをインストールしたLinux環境(Ubuntu)
-のコンテナイメージです。
+gcc ELFバイナリ向けクロスコンパイラをインストールしたLinux環境(Ubuntu)のコンテナイメージです。
 
 Hyper Operating System の開発・試験に使用することを想定しています。
 
@@ -83,47 +82,37 @@ docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 
 ## ホスト環境のディレクトリへのアクセス方法
 
-ホストの作業ディレクトリをマウントし, ホストとファイルを共有する場合は,
-以下を実行します。
+ホストの作業ディレクトリをマウントし, ホストとファイルを共有する場合は, 以下を実行します。
 
 以下のコマンド例では, `-v
-/etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro`を指定すること
-で, ホストLinuxのアカウントとユーザID, グループIDを一致させるようにしてい
-ます。コンテナ内でのアクセス権の設定方法は, ホスト環境によって異なりま
-すので, 使用するホストに合わせて適切に設定してください。
+/etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro`を指定することで, ホストLinuxのアカウントとユーザID, グループIDを一致させるようにしてい
+ます。コンテナ内でのアクセス権の設定方法は, ホスト環境によって異なりますので, 使用するホストに合わせて適切に設定してください。
 
 参考:
 
-* dockerでvolumeをマウントしたときのファイルのowner問題 <https://qiita.com/yohm/items/047b2e68d008ebb0f001>
-* Docker for Windowsでマウントする <https://qiita.com/kikako/items/7b6301a140cf37a5b7ac>
+* [dockerでvolumeをマウントしたときのファイルのowner問題](https://qiita.com/yohm/items/047b2e68d008ebb0f001)
+* [Docker for Windowsでマウントする](https://qiita.com/kikako/items/7b6301a140cf37a5b7ac)
 
 ```
 docker run -v /etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro -v ホストのディレクトリ:コンテナ内からアクセスする際のディレクトリ -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ```
 
-以下の例では, ホストのホームディレクトリ直下の
-hos/share(`${HOME}/hos/share`)ディレクトリをコンテナから使用できるよう
-にマウントします。
+以下の例では, ホストのホームディレクトリ直下の`hos/share` (`${HOME}/hos/share`)ディレクトリをコンテナから使用できるようにマウントします。
 
-ホストの`${HOME}/hos/share`ディレクトリにHOSのソースコードを配置して置
-くことで, コンテナ内のクロスコンパイル環境を利用して,
-`/home/hos/share`配下のソースコードを編集することで, ホスト上の他のディ
-レクトリに影響を与えること無くクロス開発を行うことができます。
+ホストの`${HOME}/hos/share`ディレクトリにHOSのソースコードを配置して置くことで, コンテナ内のクロスコンパイル環境を利用して, `/home/hos/share`配下のソースコードを編集することで, ホスト上の他のディレクトリに影響を与えること無くクロス開発を行うことができます。
 
 実行例:
 
-```
+```:shell
 $ docker run -v /etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro
 -v ${HOME}/hos/share:/home/hos/share -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ```
 
 # シェル用初期化処理スクリプト
 
-コンテナ内クロスコンパイラを用いた作業を行うための初期化スクリプトが
-`/opt/hos/cross/etc/shell/init`に導入されています。
+コンテナ内クロスコンパイラを用いた作業を行うための初期化スクリプトが`/opt/hos/cross/etc/shell/init`に導入されています。
 
-作業開始時に以下のコマンドにより環境設定を読み込むことで,
-lmodによる環境変数定義を行うことができます。
+作業開始時に以下のコマンドにより環境設定を読み込むことで, Lmodによる環境変数定義を行うことができます。
 
 |  シェル |  初期化スクリプト | コマンド |
 | ---- | ---- | ---- |
@@ -134,64 +123,47 @@ lmodによる環境変数定義を行うことができます。
 
 ## HOS開発者ユーザ`hos`を使用した開発
 
-Hyper Operating System の開発作業に使うように開発者ユーザ`hos`を
-作ってあります。
+Hyper Operating System の開発作業に使うように開発者ユーザ`hos`を作ってあります。
 
-コンテナ内に(docker run などで)入った後, `su - hos`を実行することで,
-`hos`ユーザ権限での作業が可能になります。
+コンテナ内に(docker run などで)入った後, `su - hos`を実行することで, `hos`ユーザ権限での作業が可能になります。
 
 ユーザ`hos`のホームディレクトリは, `/home/hos`になっています。
-ホスト環境のディレクトリを`/home/hos`配下にマウントすることで,
-ホスト環境とファイルを共有しながら作業を行うことが可能です(`ホスト環境
+ホスト環境のディレクトリを`/home/hos`配下にマウントすることで, ホスト環境とファイルを共有しながら作業を行うことが可能です(`ホスト環境
 のディレクトリへのアクセス方法`参照)。
 
 ## `hos`ユーザの.bashrcについて
 
-hosユーザの`.bashrc`に開発用のシェル初期化スクリプトの読み込み処理を追
-加しています。
+hosユーザの`.bashrc`に開発用のシェル初期化スクリプトの読み込み処理を追加しています。
 
-`/home/hos/.bashrc`をsourceコマンドで読込むことで, クロスコンパイラを
-使用するためのEnvironment Modulesファイルが利用できるようになります。
+`/home/hos/.bashrc`をsourceコマンドで読込むことで, クロスコンパイラを使用するためのEnvironment Modulesファイルが利用できるようになります。
 
-なお, 前述の手順で, `su - hos`を実行すると, `/home/hos/.bashrc`が自動
-的に読み込まれます。
+なお, 前述の手順で, `su - hos`を実行すると, `/home/hos/.bashrc`が自動的に読み込まれます。
 
 ## Lmodを用いたコンパイル環境の切り替え
 
-hosユーザの`.bashrc`から読み込まれる開発用のシェル初期化スクリプト中で,
-Lmod( <https://lmod.readthedocs.io/en/latest/> )の初期化処理が行われます。
+hosユーザの`.bashrc`から読み込まれる開発用のシェル初期化スクリプト中で, [Lmod](https://lmod.readthedocs.io/en/latest/)の初期化処理が行われます。
 
-`/opt/hos/cross/lmod/modules`配下にクロスコンパイラを利用するための
-Lmodのモジュールが格納されており, これらのモジュールを`module load`コ
-マンドによりロードすることでクロスコンパイル用の環境変数が設定されます。
+`/opt/hos/cross/lmod/modules`配下にクロスコンパイラを利用するためのLmodのモジュールが格納されており, これらのモジュールを`module load`コマンドによりロードすることでクロスコンパイル用の環境変数が設定されます。
 
 環境変数の設定を解除する場合は, `module unload`コマンドを実行します。
 
 ## モジュールによって設定される環境変数
 
-`/opt/hos/cross/lmod/modules`配下のモジュールによって, 以下の環境変数
-が設定されます。
+`/opt/hos/cross/lmod/modules`配下のモジュールによって, 以下の環境変数が設定されます。
 
-* PATH クロスコンパイラへのパスが追加されます
-* QEMU QEmuのシステムシミュレータへのコマンド名が設定されます
-* CROSS_COMPILE クロスコンパイラのプレフィクス名が設定されます
-                Linuxでのクロスコンパイラのプレフィクス名指定法に
-                合わせた環境変数です。
-* GCC_ARCH      クロスコンパイラのプレフィクス名が設定されます
-                HOSのMakefile中での設定値をオーバライドするための設定
-                です。設定値は, `CROSS_COMPILE`と同じです。
-* GDB_COMMAND クロスgdbのコマンド名が設定されます。
+* `PATH` クロスコンパイラへのパスが追加されます
+* `QEMU` QEmuのシステムシミュレータへのコマンド名が設定されます。
+* `CROSS_COMPILE` クロスコンパイラのプレフィクス名が設定されます。 Linuxでのクロスコンパイラのプレフィクス名指定法に合わせた環境変数です。
+* `GCC_ARCH`      クロスコンパイラのプレフィクス名が設定されます。 HOSのMakefile中での設定値をオーバライドするための設定です。設定値は, `CROSS_COMPILE`と同じです。
+* `GDB_COMMAND` クロスgdbのコマンド名が設定されます。
 
 実行例:
-コンテナ上で 以下の作業を行い, クロスコンパイル用の環境変数が設定され
-ることを確認する例です。
+コンテナ上で 以下の作業を行い, クロスコンパイル用の環境変数が設定されることを確認する例です。
 
 1. ホスト上で`docker run`コマンドを実行し, コンテナに入ります。
    実行コマンド: `docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv`
 2. シェルの初期化スクリプトをロードし, Lmodを使用可能にします。
-   ユーザ`hos`の場合は, 以下でユーザ`hos`に実行ユーザ切り替え時に自動
-   的に初期化スクリプトが読み込まれますが, より汎用的な手順として, 初
-   期化スクリプトを明示的に読み込むようにしています。
+   ユーザ`hos`の場合は, 以下でユーザ`hos`に実行ユーザ切り替え時に自動的に初期化スクリプトが読み込まれますが, より汎用的な手順として, 初期化スクリプトを明示的に読み込むようにしています。
    実行コマンド: `source /opt/hos/cross/etc/shell/init/bash`
 3. 特権ユーザでの作業をさけるため, ユーザ`hos`に切り替えます。
    実行コマンド: `su - hos`
@@ -260,14 +232,11 @@ hos@c379e39513d0:~$
 
 ## Visual Studio Code用の設定ファイル
 
-Visual Studio Code(以下`VScode`と略す)を用いてコンテナ内のクロスコンパ
-イラを利用した開発を行うための設定ファイル群を各CPUのクロスコンパイラ
-のインストールディレクトリ中の`vscode`ディレクトリ内に格納しています。
+Studio Codeを用いたコンテナ開発(`devcontainer`開発)のための各種設定ファイルを, コンテナ内の各CPUのクロスコンパイラのインストールディレクトリ中の`vscode`ディレクトリ内に格納しています。
 
-ホスト上で, 以下の手順を実施することで, Hyper Operating System用の開発
-環境をセットアップすることができます。
+ホスト上で, 以下の手順を実施することで, Hyper Operating System用の開発環境をセットアップすることができます。
 
-1. ホスト上に以下の環境を構築します。
+1. ホスト上に以下の環境を導入します。
 
 * Docker環境の導入
   [Docker Desktop](https://www.docker.com/products/docker-desktop/),
@@ -277,53 +246,48 @@ Visual Studio Code(以下`VScode`と略す)を用いてコンテナ内のクロ�
 * Visual Studio Codeの導入
     [Visual Studio Codeの公式サイト](https://code.visualstudio.com/)か
     らVisual Studio Codeを導入します。
-* [Visual Studio Code Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
-  の導入
+* [Visual Studio Code Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)の導入
   `VSCode`の拡張機能メニューから`Visual Studio Code Remote Development
   Extension Pack`を導入します。
 * OpenSSH for Windowsの導入
-    以下のサイトなどを参考に, `OpenSSH for Windows`を用いて, ssh-agentに
- よる公開鍵認証を行える環境を用意し, `VSCode`から`Git Hub`へのSSH接続
- を行えるようにします。
+    以下のサイトなどを参考に, `OpenSSH for Windows`を用いて, ssh-agentによる公開鍵認証を行える環境を構築し, `VSCode`から`GitHub`へのSSH接続を行えるようにします。
   * [OpenSSH for Windows の使用方法](https://qiita.com/akiakishitai/items/9e661a126b9c6ae24a56)
   * [Windows 10 で SSH Agent を使用する](https://scientre.hateblo.jp/entry/2021/06/17/windows-ssh-add)
 
 * `GitHub`拡張機能の導入
     `VSCode`の`拡張機能`ボタンから`GitHub`を導入します。
 
-2. コンテナイメージを取得する
-コマンド例: riscv64用のコンテナイメージを取得
+2. コンテナイメージを取得します。
+64bit RISC-V用のコンテナイメージを取得するコマンドの例:
 
 ```:shell
 docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv64
 ```
 
 3. コンテナを起動する
-コマンド例: riscv64用のコンテナを対話型で起動し, `hos`という名前をつけ
-る
+64bit RISC-V用のコンテナを`hos`という名前で, 対話型起動するコマンドの例:
 
 ```:shell
 docker run --name hos -it ghcr.io/takeharukato/crosstool-for-hos-riscv64
 ```
 
 4. コンテナを停止する
-コマンド例: 起動したコンテナを一時停止する
+起動したコンテナを一時停止するコマンドの例:
 
 ```:shell
 docker stop hos
 ```
 
-5. コンテナ内の設定ファイルをホストにコピーする
+5. コンテナ内の設定ファイルをホストにコピーする。
 コピー先のディレクトリがVScodeのワークスペースディレクトリになります。
-コマンド例: コンテナ内の設定ファイルをホスト上のカレントディレクトリ
-(ワークスペースディレクトリ)にコピーする
+コンテナ内の設定ファイルをホスト上のカレントディレクトリ(ワークスペースディレクトリ)にコピーするコマンドの例:
 
 ```:shell
 docker cp hos:/opt/hos/cross/riscv64/vscode .
 ```
 
 6. コンテナを削除する
-
+`hos`という名前のコンテナを削除するコマンドの例:
 ```:shell
 docker rm hos
 ```
@@ -443,23 +407,16 @@ c:\Users\hosWindows\vscodeEnv\riscv>
 * `Build` デバッグオプションなしでバイナリを生成します
 * `DebugBuild` デバッグオプション付きでバイナリを生成します
 * `Clean`  ユーザプログラムのオブジェクトファイルを削除します。
-* `DistClean` カーネルを含めてオブジェクトファイルを削除します(一部ター
-  ゲットのみ)。
-* `LaunchQEmu` QEmuのシステムシミュレータを使用してHOSを起動します
-  (一部ターゲットのみ)。
+* `DistClean` カーネルを含めてオブジェクトファイルを削除します(一部ターゲットのみ)。
+* `LaunchQEmu` QEmuのシステムシミュレータを使用してHOSを起動します(一部ターゲットのみ)。
 
-QEmuのシステムシミュレータとクロスのgdbを用いたデバッグを行うための設
-定ファイル(launch.json)を用意しています。上記の`LaunchQEmu`タスクを実
-行してしばらく待つと, `ポート1234番のサービスが利用可能`になった旨のダ
-イアログがでます。その後, `実行`メニューから`デバッグの開始`を選ぶこと
-で`VSCode`を用いたプログラムのデバッグを行うことが可能です。
+QEmuのシステムシミュレータとクロスのgdbを用いたデバッグを行うための設定ファイル(launch.json)を用意しています。上記の`LaunchQEmu`タスクを実行してしばらく待つと, `ポート1234番のサービスが利用可能`になった旨のダイアログがでます。その後, `実行`メニューから`デバッグの開始`を選ぶことで`VSCode`を用いたプログラムのデバッグを行うことが可能です。
 
 # 開発者向け情報
 
 ## コンテナイメージの自動登録について
 
-GitHub Actionsを使用してコンテナイメージの生成とGitHub Container
-Registryへの登録を行っています。
+GitHub Actionsを使用してコンテナイメージの生成とGitHub Container Registryへの登録を行っています。
 
 forkしたリポジトリで実行する場合, 以下の事前準備が必要です。
 
@@ -473,9 +430,7 @@ forkしたリポジトリで実行する場合, 以下の事前準備が必要�
 8. 本リポジトリのSettingsを開きます
 9. 左側のSecretsメニューにあるActionsをクリックします
 10. 右上のNew repository secretをクリックします
-11. Secretの作成画面で, NameをCR_PAT(本ファイル内で参照している名前)
-     に設定し,Valueに, 上記で獲得したPATを貼り付けてAdd secretをクリッ
-     クします.
+11. Secretの作成画面で, NameをCR_PAT(本ファイル内で参照している名前)に設定し,Valueに, 上記で獲得したPATを貼り付けてAdd secretをクリックします.
 
 参考サイト: [Github Actionsを使ってDocker ImageをGitHub Container RegistryにPushする](https://uzimihsr.github.io/post/2020-10-11-github-action-publish-docker-image-ghcr/)
 
@@ -489,37 +444,26 @@ forkしたリポジトリで実行する場合, 以下の事前準備が必要�
 3. コンテナイメージ情報画面右の`Package Setting`ボタンを押します。
 4. コンテナイメージの`Package Setting`画面下部の`Danger zone`中にある`Change visibility`ボタンを押します。
 5. `Public`を選択し, Confirmテキストボックス内にコンテナ名を入力後, `I
-   understand the consequences, change package visibility.`ボタンを押
-   します。
+   understand the consequences, change package visibility.`ボタンを押します。
 
 ## ファイル構成
 
 * README.md 本ファイルです
-* Makefile コンテナイメージを作成するためのDockerfileからGitHub
-  Actionsでコンテナイメージを作成する際に使用するDockerfileのテンプレー
-  トを生成するMakefileです。
-* docker/Dockerfile コンテナイメージを作成するためのDockerfileです
-* docker/scripts/mkcross-elf.sh クロスコンパイル環境を構築するためのスクリプ
-  トです。
-* docker/vscode Visual Studio Code用の設定ファイルのテンプレートを格納
-                したディレクトリです。
-* .github/workflows/push_container_image.yml コンテナイメージの作成と
-   GitHub Container Registryへのイメージ登録までを行うGitHub Actions定
-   義です。
+* Makefile コンテナイメージを作成するためのDockerfileからGitHub Actionsでコンテナイメージを作成する際に使用するDockerfileのテンプレートを生成するMakefileです。
+* docker/Dockerfile コンテナイメージを作成するためのDockerfileです。
+* docker/scripts/mkcross-elf.sh クロスコンパイル環境を構築するためのスクリプトです。
+* docker/vscode Visual Studio Code用の設定ファイルのテンプレートを格納したディレクトリです。
+* .github/workflows/push_container_image.yml コンテナイメージの作成とGitHub Container Registryへのイメージ登録までを行うGitHub Actions定義です。
 
 ## Makefileについて
 
 以下のMakefile ターゲットが定義されています:
 
-* `build`  ローカル環境のDockerを使用して, コンテナイメージを作成しま
-  す。
+* `build`  ローカル環境のDockerを使用して, コンテナイメージを作成します。
 * `run`    ローカル環境で作成したコンテナイメージに入ります。
 * `clean-images` ローカル環境のコンテナイメージを削除します。
 * `build-each` 各CPU向けのコンテナイメージを作成します。
-* `build-and-push-each` 各CPU向けのコンテナイメージを作成し, GitHub
-  Container Registryに登録します(パーソナルトークンを記載した
-  registry/ghcr.txtと環境変数`GITHUB_USER`にパーソナルトークンに対応し
-  たGit Hubアカウント名を設定する必要があります)
+* `build-and-push-each` 各CPU向けのコンテナイメージを作成し, GitHub Container Registryに登録します(パーソナルトークンを記載したregistry/ghcr.txtと環境変数`GITHUB_USER`にパーソナルトークンに対応したGitHubアカウント名を設定する必要があります)
 
 ## スクリプトの修正
 
