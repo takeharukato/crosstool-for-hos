@@ -29,6 +29,10 @@ on:
     paths:
       - 'docker/scripts/mkcross-elf.sh'
       - 'templates/Dockerfiles/Dockerfile.tmpl'
+      - 'docker/vscode/sample.code-workspace'
+      - 'docker/vscode/_vscode/*.json'
+      - 'docker/vscode/_devcontainer/Dockerfile'
+      - 'docker/vscode/_devcontainer/*.json'
 jobs:
 #
 # RISC-V
