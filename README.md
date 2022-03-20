@@ -270,7 +270,7 @@ Visual Studio Code(以下`VScode`と略す)を用いてコンテナ内のクロ�
   * Docker環境
   [Docker Desktop](https://www.docker.com/products/docker-desktop/),
   または, [Rancher Desktop](https://rancherdesktop.io/)などを導入しま
-  す。`Rancher Desktop`を導入する場合, コンテナランタイムは`docked`を選
+  す。`Rancher Desktop`を導入する場合, コンテナランタイムは`dockerd`を選
   択します。
   * Visual Studio Codeの導入
     [Visual Studio Codeの公式サイト](https://code.visualstudio.com/)か
