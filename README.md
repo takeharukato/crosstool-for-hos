@@ -278,6 +278,7 @@ Visual Studio Codeを用いたコンテナ開発(`devcontainer`開発)のため�
 ホスト上で, 以下の手順を実施することで, Hyper Operating System用の開発環境をセットアップすることができます。
 
 1. __Visual Studio Code環境のセットアップ__
+
 以下の作業を実施し, Visual Studio Code環境をセットアップします。
 
 * __Docker環境の導入__

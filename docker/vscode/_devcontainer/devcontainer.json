@@ -15,8 +15,6 @@
 	"extensions": [
 		"ms-vscode.cpptools",
 		"DamianKoper.gdb-debug",
-		"aaron-bond.better-comments",
-		"GitHub.codespaces",
 		"GitHub.remotehub",
 		"basdp.language-gas-x86",
 		"ZixuanWang.linkerscript",
@@ -26,13 +24,9 @@
 		"ms-vscode-remote.remote-wsl",
 		"ms-vscode-remote.vscode-remote-extensionpack",
 		"vscode-icons-team.vscode-icons",
-		"HookyQR.beautify",
-		"danielpinto8zz6.c-cpp-compile-run",
 		"ms-vscode.cpptools-extension-pack",
-		"formulahendry.code-runner",
 		"ms-azuretools.vscode-docker",
 		"p1c2u.docker-compose",
-		"cschlosser.doxdocgen",
 		"mhutchie.git-graph",
 		"donjayamanne.githistory",
 		"felipecaputo.git-project-manager",
@@ -45,8 +39,6 @@
 		"trond-snekvik.gnu-mapfiles",
 		"metalcode-eu.gnu-debugger",
 		"AdamWulkiewicz.graphicaldebugging-vscode",
-		"ms-vscode.hexeditor",
-		"kisstkondoros.vscode-gutter-preview",
 		"ms-kubernetes-tools.vscode-kubernetes-tools",
 		"starkwang.markdown",
 		"yzhang.markdown-all-in-one",
@@ -62,13 +54,8 @@
 		"ionutvmi.path-autocomplete",
 		"christian-kohler.path-intellisense",
 		"ms-vscode.powershell",
-		"esbenp.prettier-vscode",
 		"Okteto.remote-kubernetes",
-		"rust-lang.rust",
-		"matklad.rust-analyzer",
-		"Natizyskunk.sftp",
-		"hbenl.vscode-test-explorer",
-		"redhat.vscode-yaml"
+		"Natizyskunk.sftp"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

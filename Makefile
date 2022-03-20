@@ -16,7 +16,7 @@ BUILD_CPU ?= ""
 
 IMAGE_NAME=crosstool-for-hos
 
-all: build
+all: release
 
 define CLEAN_WORKDIR
 	@if [ -d workdir ]; then \
