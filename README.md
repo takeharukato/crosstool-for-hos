@@ -37,16 +37,17 @@
       - [cpu_target_names](#cpu_target_names)
       - [cpu_target_cflags](#cpu_target_cflags)
   - [付録: EmacsのGrand Unified Debugger modeでデバッグするための設定](#付録-emacsのgrand-unified-debugger-modeでデバッグするための設定)
+
 ## はじめに
 
 gcc ELFバイナリ向けクロスコンパイラをインストールしたLinux環境(Ubuntu)のコンテナイメージです。
 
 Hyper Operating System の開発・試験に使用することを想定しています。
 
-* リポジトリ: <https://github.com/takeharukato/crosstool-for-hos>
-* コンテナイメージパッケージ: <https://github.com/takeharukato?tab=packages>
-* Hyper Operating System : <https://ja.osdn.net/projects/hos/>
-* HOS-V4 Advance -μITRON4.0仕様 RealTime-OS (作者local版): <https://github.com/ryuz/hos-v4a>
+- リポジトリ: <https://github.com/takeharukato/crosstool-for-hos>
+- コンテナイメージパッケージ: <https://github.com/takeharukato?tab=packages>
+- Hyper Operating System : <https://ja.osdn.net/projects/hos/>
+- HOS-V4 Advance -μITRON4.0仕様 RealTime-OS (作者local版): <https://github.com/ryuz/hos-v4a>
 
 ### 対応CPU
 
@@ -79,13 +80,13 @@ CPU名は, `対応CPU`の節に記載したCPU名を指定してください。
 
 以下のコマンドを実行して, コンパイル環境のコンテナイメージを取得します。
 
-```
+```shell
 docker pull ghcr.io/takeharukato/crosstool-for-hos-CPU名:latest
 ```
 
 実行例: RISC-V開発環境のコンテナイメージを取得する
 
-```
+```shell
 $ docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 $
 ```
@@ -97,7 +98,7 @@ $
 
 ダウンロードしたコンテナイメージを確認する場合は,
 
-```
+```shell
 docker images
 ```
 
@@ -105,7 +106,7 @@ docker images
 
 実行例は以下の通りです。
 
-```
+```shell
 $ docker images
 REPOSITORY                                     TAG       IMAGE ID       CREATED          SIZE
 ghcr.io/takeharukato/crosstool-for-hos-riscv   latest    831484ca8065   40 minutes ago   4.42GB
@@ -117,7 +118,7 @@ ghcr.io/takeharukato/crosstool-for-hos-riscv   latest    831484ca8065   40 minut
 
 以下のコマンドを実行することでコンテナイメージ内に入ることができます。
 
-```
+```shell
 docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ```
 
@@ -131,10 +132,10 @@ docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 
 参考:
 
-* [dockerでvolumeをマウントしたときのファイルのowner問題](https://qiita.com/yohm/items/047b2e68d008ebb0f001)
-* [Docker for Windowsでマウントする](https://qiita.com/kikako/items/7b6301a140cf37a5b7ac)
+- [dockerでvolumeをマウントしたときのファイルのowner問題](https://qiita.com/yohm/items/047b2e68d008ebb0f001)
+- [Docker for Windowsでマウントする](https://qiita.com/kikako/items/7b6301a140cf37a5b7ac)
 
-```
+```shell
 docker run -v /etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro -v ホストのディレクトリ:コンテナ内からアクセスする際のディレクトリ -it ghcr.io/takeharukato/crosstool-for-hos-riscv:latest
 ```
 
@@ -192,11 +193,13 @@ hosユーザの`.bashrc`から読み込まれる開発用のシェル初期化�
 
 `/opt/hos/cross/lmod/modules`配下のモジュールによって, 以下の環境変数が設定されます。
 
-* `PATH` クロスコンパイラへのパスが追加されます
-* `QEMU` QEmuのシステムシミュレータへのコマンド名が設定されます。
-* `CROSS_COMPILE` クロスコンパイラのプレフィクス名が設定されます。 Linuxでのクロスコンパイラのプレフィクス名指定法に合わせた環境変数です。
-* `GCC_ARCH`      クロスコンパイラのプレフィクス名が設定されます。 HOSのMakefile中での設定値をオーバライドするための設定です。設定値は, `CROSS_COMPILE`と同じです。
-* `GDB_COMMAND` クロスgdbのコマンド名が設定されます。
+- `PATH` クロスコンパイラへのパスが追加されます
+
+- `QEMU` QEmuのシステムシミュレータへのコマンド名が設定されます。
+
+- `CROSS_COMPILE` クロスコンパイラのプレフィクス名が設定されます。 Linuxでのクロスコンパイラのプレフィクス名指定法に合わせた環境変数です。
+- `GCC_ARCH`      クロスコンパイラのプレフィクス名が設定されます。 HOSのMakefile中での設定値をオーバライドするための設定です。設定値は, `CROSS_COMPILE`と同じです。
+- `GDB_COMMAND` クロスgdbのコマンド名が設定されます。
 
 実行例:
 コンテナ上で 以下の作業を行い, クロスコンパイル用の環境変数が設定されることを確認する例です。
@@ -225,7 +228,7 @@ hosユーザの`.bashrc`から読み込まれる開発用のシェル初期化�
 10. 64bit RISC-V用のモジュールの読込みを解除します。
    実行コマンド: `module unload RISCV64-UNKNOWN-ELF-GCC`
 
-```
+```shell
 $ docker run -it ghcr.io/takeharukato/crosstool-for-hos-riscv
 root@b728864e1500:/# source /opt/hos/cross/etc/shell/init/bash
 root@b728864e1500:/# su - hos
@@ -279,52 +282,48 @@ Visual Studio Codeを用いたコンテナ開発(`devcontainer`開発)のため�
 
 1. __Visual Studio Code環境のセットアップ__
 
-以下の作業を実施し, Visual Studio Code環境をセットアップします。
+   以下の作業を実施し, Visual Studio Code環境をセットアップします。
 
-* __Docker環境の導入__
+   - __Docker環境の導入__[Docker Desktop](https://www.docker.com/products/docker-desktop/), または, [Rancher Desktop](https://rancherdesktop.io/)などを導入します。`Rancher Desktop`を導入する場合, コンテナランタイムは`dockerd`を選択します。
 
-  [Docker Desktop](https://www.docker.com/products/docker-desktop/),
-  または, [Rancher Desktop](https://rancherdesktop.io/)などを導入しま
-  す。`Rancher Desktop`を導入する場合, コンテナランタイムは`dockerd`を選
-  択します。
-* __Visual Studio Codeの導入__
+- __Visual Studio Codeの導入__
 
     [Visual Studio Codeの公式サイト](https://code.visualstudio.com/)か
     らVisual Studio Codeを導入します。
-* [Visual Studio Code Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)の導入
+- [Visual Studio Code Remote Development Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)の導入
   `VSCode`の拡張機能メニューから`Visual Studio Code Remote Development
   Extension Pack`を導入します。
-* __OpenSSH for Windowsの導入__
+- __OpenSSH for Windowsの導入__
 
     以下のサイトなどを参考に, `OpenSSH for Windows`を用いて, ssh-agentによる公開鍵認証を行える環境を構築し, `VSCode`から`GitHub`へのSSH接続を行えるようにします。
-  * [OpenSSH for Windows の使用方法](https://qiita.com/akiakishitai/items/9e661a126b9c6ae24a56)
-  * [Windows 10 で SSH Agent を使用する](https://scientre.hateblo.jp/entry/2021/06/17/windows-ssh-add)
+  - [OpenSSH for Windows の使用方法](https://qiita.com/akiakishitai/items/9e661a126b9c6ae24a56)
+  - [Windows 10 で SSH Agent を使用する](https://scientre.hateblo.jp/entry/2021/06/17/windows-ssh-add)
 
-* __`GitHub`拡張機能の導入__
+- __`GitHub`拡張機能の導入__
     `VSCode`の`拡張機能`ボタンから`GitHub`を導入します。
 
-2. コンテナイメージを取得します。
+1. __コンテナイメージを取得します。__
 64bit RISC-V用のコンテナイメージを取得するコマンドの例:
 
-```:shell
+```shell
 docker pull ghcr.io/takeharukato/crosstool-for-hos-riscv64
 ```
 
-3. __コンテナを起動します。__
+2. __コンテナを起動します。__
 64bit RISC-V用のコンテナを`hos`という名前で, 対話型起動します。
 
 ```:shell
 docker run --name hos -it ghcr.io/takeharukato/crosstool-for-hos-riscv64
 ```
 
-4. __コンテナを停止します。__
+3. __コンテナを停止します。__
 起動したコンテナを一時停止します。
 
 ```:shell
 docker stop hos
 ```
 
-5. __コンテナ内の設定ファイルをホストにコピーします。__
+4. __コンテナ内の設定ファイルをホストにコピーします。__
 コピー先のディレクトリがVScodeのワークスペースディレクトリになります。
 以下のコマンドをホストから実行し, コンテナ内の設定ファイルをホスト上のカレントディレクトリ(ワークスペースディレクトリ)にコピーします。
 
@@ -332,26 +331,27 @@ docker stop hos
 docker cp hos:/opt/hos/cross/riscv64/vscode .
 ```
 
-6. __コンテナを削除します。__
+5. __コンテナを削除します。__
 `hos`という名前のコンテナを削除するコマンドの例:
+
 ```:shell
 docker rm hos
 ```
 
-7. __ホストにコピーしたワークスペースファイルをVScodeから開きます。__
+6. __ホストにコピーしたワークスペースファイルをVScodeから開きます。__
 ワークスペースファイル(hos-riscv64.code-workspace)を`VScode`で開きます。
-8. __HOSのリポジトリをホスト上のワークスペースディレクトリにクローンします。__
+7. __HOSのリポジトリをホスト上のワークスペースディレクトリにクローンします。__
    `VScode`から`Git クローン`コマンドを用いることでワークスペースにクローンします。`表示`メニューのコマンドパレットから`Git クローン(Git: Clone)`を選択し, リポジトリをクローンします。
-9. __`_vscode/launch.json`, `_vscode/tasks.json`を修正します。__
+8. __`_vscode/launch.json`, `_vscode/tasks.json`を修正します。__
 `launch.json`, `tasks.json`の以下の部分を環境に合わせて修正します。
-    * `__HOS_USER_PROGRAM_FILE__` デバッグ情報を含んだELFファイルのファイル名を指定します(例:sampledbg.elf)。
+    - `__HOS_USER_PROGRAM_FILE__` デバッグ情報を含んだELFファイルのファイル名を指定します(例:sampledbg.elf)。
 
-   * `__HOS_USER_PROGRAM_DIR__` ユーザプログラムを構築する際のカレントディレクトリを`ワークスペースからの相対パス`で指定します。例えば, ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディレクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き換えます。
+    - `__HOS_USER_PROGRAM_DIR__` ユーザプログラムを構築する際のカレントディレクトリを`ワークスペースからの相対パス`で指定します。例えば, ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディレクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き換えます。
 
-   * `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ(qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名を指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファイル名に書き換えます。 ELFの代わりにターゲット用のイメージファイルを読み込む場合(例: IA32)は, そのイメージファイル名に書き換えます。
-11. __`_devcontainer`ディレクトリを`.devcontainer`にリネームします。__
-12. __`_vscode`ディレクトリを`.vscode`にリネームします。__
-13. __ワークスペースファイルをコンテナ内で開き直します。__
+    - `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ(qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名を指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファイル名に書き換えます。 ELFの代わりにターゲット用のイメージファイルを読み込む場合(例: IA32)は, そのイメージファイル名に書き換えます。
+9. __`_devcontainer`ディレクトリを`.devcontainer`にリネームします。__
+10. __`_vscode`ディレクトリを`.vscode`にリネームします。__
+11. __ワークスペースファイルをコンテナ内で開き直します。__
 `表示`メニューの`コマンドパレット`から`Remote-Container:
 Rebuild and Reopen in Container`を選択し, ワークスペースファイル(hos-riscv64.code-workspace)を開きます。
 
@@ -400,8 +400,8 @@ c:\Users\hosWindows\vscodeEnv\riscv>
 
 #### .vscode/launch.jsonの修正点
 
-* キー`"program"` の値をデバッグ情報付きのELFファイルである`sampledbg.elf`に設定
-* キー`"cwd"` の値を上記`"program"`に設定したファイルのディレクトリ(デバッガ起動時のディレクトリ)である`${workspaceFolder}/hos-v4a/sample/riscv/virt/gcc`に設定
+- キー`"program"` の値をデバッグ情報付きのELFファイルである`sampledbg.elf`に設定
+- キー`"cwd"` の値を上記`"program"`に設定したファイルのディレクトリ(デバッガ起動時のディレクトリ)である`${workspaceFolder}/hos-v4a/sample/riscv/virt/gcc`に設定
 
 修正内容のdiffは以下のようになります。
 
@@ -426,8 +426,8 @@ c:\Users\hosWindows\vscodeEnv\riscv>
 
 #### .vscode/tasks.jsonの修正点
 
-* キー`"QEMU_KERNEL_OPT"` の値をデバッグ情報付きのELFファイルである`sampledbg.elf`に設定
-* キー`"cwd"` の値を上記`"QEMU_KERNEL_OPT"`に設定したファイルのディレクトリ(デバッガ起動時のディレクトリ)である`${workspaceFolder}/hos-v4a/sample/riscv/virt/gcc`に設定
+- キー`"QEMU_KERNEL_OPT"` の値をデバッグ情報付きのELFファイルである`sampledbg.elf`に設定
+- キー`"cwd"` の値を上記`"QEMU_KERNEL_OPT"`に設定したファイルのディレクトリ(デバッガ起動時のディレクトリ)である`${workspaceFolder}/hos-v4a/sample/riscv/virt/gcc`に設定
 
 修正内容のdiffは以下のようになります。
 
@@ -453,11 +453,11 @@ c:\Users\hosWindows\vscodeEnv\riscv>
 `コマンドパレット`から`タスク: タスクの実行`(`Tasks: Run Task`)を選択
 することでコンパイル作業を行うことができます。
 
-* `Build` デバッグオプションなしでバイナリを生成します
-* `DebugBuild` デバッグオプション付きでバイナリを生成します
-* `Clean`  ユーザプログラムのオブジェクトファイルを削除します。
-* `DistClean` カーネルを含めてオブジェクトファイルを削除します(一部ターゲットのみ)。
-* `LaunchQEmu` QEmuのシステムシミュレータを使用してHOSを起動します(一部ターゲットのみ)。
+- `Build` デバッグオプションなしでバイナリを生成します
+- `DebugBuild` デバッグオプション付きでバイナリを生成します
+- `Clean`  ユーザプログラムのオブジェクトファイルを削除します。
+- `DistClean` カーネルを含めてオブジェクトファイルを削除します(一部ターゲットのみ)。
+- `LaunchQEmu` QEmuのシステムシミュレータを使用してHOSを起動します(一部ターゲットのみ)。
 
 QEmuのシステムシミュレータとクロスのgdbを用いたデバッグを行うための設定ファイル(launch.json)を用意しています。上記の`LaunchQEmu`タスクを実行してしばらく待つと, `ポート1234番のサービスが利用可能`になった旨のダイアログがでます。その後, `実行`メニューから`デバッグの開始`を選ぶことで`VSCode`を用いたプログラムのデバッグを行うことが可能です。
 
@@ -497,22 +497,22 @@ forkしたリポジトリで実行する場合, 以下の事前準備が必要�
 
 ### ファイル構成
 
-* README.md 本ファイルです
-* Makefile コンテナイメージを作成するためのDockerfileからGitHub Actionsでコンテナイメージを作成する際に使用するDockerfileのテンプレートを生成するMakefileです。
-* docker/Dockerfile コンテナイメージを作成するためのDockerfileです。
-* docker/scripts/mkcross-elf.sh クロスコンパイル環境を構築するためのスクリプトです。
-* docker/vscode Visual Studio Code用の設定ファイルのテンプレートを格納したディレクトリです。
-* .github/workflows/push_container_image.yml コンテナイメージの作成とGitHub Container Registryへのイメージ登録までを行うGitHub Actions定義です。
+- README.md 本ファイルです
+- Makefile コンテナイメージを作成するためのDockerfileからGitHub Actionsでコンテナイメージを作成する際に使用するDockerfileのテンプレートを生成するMakefileです。
+- docker/Dockerfile コンテナイメージを作成するためのDockerfileです。
+- docker/scripts/mkcross-elf.sh クロスコンパイル環境を構築するためのスクリプトです。
+- docker/vscode Visual Studio Code用の設定ファイルのテンプレートを格納したディレクトリです。
+- .github/workflows/push_container_image.yml コンテナイメージの作成とGitHub Container Registryへのイメージ登録までを行うGitHub Actions定義です。
 
 ### Makefileについて
 
 以下のMakefile ターゲットが定義されています:
 
-* `build`  ローカル環境のDockerを使用して, コンテナイメージを作成します。
-* `run`    ローカル環境で作成したコンテナイメージに入ります。
-* `clean-images` ローカル環境のコンテナイメージを削除します。
-* `build-each` 各CPU向けのコンテナイメージを作成します。
-* `build-and-push-each` 各CPU向けのコンテナイメージを作成し, GitHub Container Registryに登録します(パーソナルトークンを記載したregistry/ghcr.txtと環境変数`GITHUB_USER`にパーソナルトークンに対応したGitHubアカウント名を設定する必要があります)
+- `build`  ローカル環境のDockerを使用して, コンテナイメージを作成します。
+- `run`    ローカル環境で作成したコンテナイメージに入ります。
+- `clean-images` ローカル環境のコンテナイメージを削除します。
+- `build-each` 各CPU向けのコンテナイメージを作成します。
+- `build-and-push-each` 各CPU向けのコンテナイメージを作成し, GitHub Container Registryに登録します(パーソナルトークンを記載したregistry/ghcr.txtと環境変数`GITHUB_USER`にパーソナルトークンに対応したGitHubアカウント名を設定する必要があります)
 
 ### スクリプトの修正
 
@@ -522,7 +522,7 @@ mkcross-elf.shの`TARGET_CPUS`変数に対象CPUを空白で区切って記述�
 
 記述例: i386とriscv32だけを構築する場合
 
-```
+```shell
 TARGET_CPUS="i386 riscv32"
 ```
 
@@ -544,13 +544,13 @@ CPU間で共通で使用するツールチェインの版数情報を設定で�
 
 記述例: CPU間で共通で使用するbinutilsの版数をbinutils-2.37に設定する
 
-```
+```shell
     ["binutils"]="binutils-2.37"
 ```
 
 記述例: h8300で使用するbinutilsの版数をbinutils-2.24に設定する
 
-```
+```shell
     ["h8300-binutils"]="binutils-2.24"
 ```
 
@@ -565,7 +565,7 @@ tool_namesで指定したツールチェインの版数をキーとして,
 
 記述例: binutils-2.37のアーカイブ名をbinutils-2.37.tar.gzに設定する
 
-```
+```shell
     ["binutils-2.37"]="binutils-2.37.tar.gz"
 ```
 
@@ -579,7 +579,7 @@ tool_namesで指定したツールチェインの版数をキーとして,
 <https://ftp.gnu.org/gnu/binutils/binutils-2.37.tar.gz>
 に設定する
 
-```
+```shell
     ["binutils-2.37"]="https://ftp.gnu.org/gnu/binutils/binutils-2.37.tar.gz"
 ```
 
@@ -594,7 +594,7 @@ TARGET_CPUSに記述したCPU名をキーに, QEmuのターゲットリストに
 arm-softmmu,arm-linux-user
 ターゲットを構築する場合
 
-```
+```shell
 ["armhw"]="arm-softmmu,arm-linux-user"
 ```
 
@@ -609,7 +609,7 @@ QEmuのシステムシミュレータのコマンド名をEnvironment Modules/Lm
 
 記述例: ハードウエアFPUを使用するArm(armhw)のQEmuのCPU名をarmに設定す
 
-```
+```shell
 ["armhw"]="arm"
 ```
 
@@ -619,7 +619,7 @@ TARGET\_CPUSに記述したCPU名をキーに, QEmuの起動オプションを�
 
 記述例: riscv64用のQEmu起動オプションを
 
-```
+```shell
 ["armhw"]="arm"
 ```
 
@@ -637,7 +637,7 @@ tripletを指定するために導入しています。
 記述例: ハードウエアFPUを使用するArm(armhw)のターゲット指定用tripletを
 arm-eabihfに設定します。
 
-```
+```shell
     ["armhw-elf"]="arm-eabihf"
 ```
 
@@ -654,7 +654,7 @@ HOSのコンパイルオプションとの不一致によるバイナリ生成�
 
 記述例: H8/300用のコードを生成するようにclagsに`-mh`を設定します。
 
-```
+```shell
     ["h8300-elf"]="-mh"
 ```
 
@@ -664,7 +664,7 @@ HOSのコンパイルオプションとの不一致によるバイナリ生成�
 Grand Unified Debugger modeでデバッグする際のデバッガ名を設定するため
 の`.emacs`を以下に記載します。
 
-```
+```emacs-lisp
 ;;
 ;; Grand Unified Debugger mode
 ;;
