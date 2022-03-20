@@ -269,7 +269,7 @@ Visual Studio Code(以下`VScode`と略す)を用いてコンテナ内のクロ�
 
 1. ホスト上に以下の環境を構築します。
 
-* Docker環境
+* Docker環境の導入
   [Docker Desktop](https://www.docker.com/products/docker-desktop/),
   または, [Rancher Desktop](https://rancherdesktop.io/)などを導入しま
   す。`Rancher Desktop`を導入する場合, コンテナランタイムは`dockerd`を選
@@ -477,8 +477,7 @@ forkしたリポジトリで実行する場合, 以下の事前準備が必要�
      に設定し,Valueに, 上記で獲得したPATを貼り付けてAdd secretをクリッ
      クします.
 
-参考サイト: Github Actionsを使ってDocker ImageをGitHub Container RegistryにPushする
-<https://uzimihsr.github.io/post/2020-10-11-github-action-publish-docker-image-ghcr/>
+参考サイト: [Github Actionsを使ってDocker ImageをGitHub Container RegistryにPushする](https://uzimihsr.github.io/post/2020-10-11-github-action-publish-docker-image-ghcr/)
 
 ## コンテナイメージの公開
 
