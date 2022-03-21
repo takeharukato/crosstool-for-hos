@@ -15,6 +15,7 @@
       - [Lmodを用いたコンパイル環境の切り替え](#lmodを用いたコンパイル環境の切り替え)
         - [モジュールによって設定される環境変数](#モジュールによって設定される環境変数)
   - [Visual Studio Codeを用いた開発環境の構築・利用方法](#visual-studio-codeを用いた開発環境の構築利用方法)
+    - [Gitの設定](#gitの設定)
     - [Visual Studio Code環境のセットアップ](#visual-studio-code環境のセットアップ)
     - [コンテナイメージを取得](#コンテナイメージを取得)
     - [コンテナの起動](#コンテナの起動)
@@ -295,6 +296,14 @@ hos@c379e39513d0:~$
 Visual Studio Codeを用いたコンテナ開発(`devcontainer`開発)のための各種設定ファイルを, コンテナ内の各CPUのクロスコンパイラのインストールディレクトリ中の`vscode`ディレクトリ内に格納しています。
 
 ホスト上で, 以下の手順を実施することで, Hyper Operating System用の開発環境をセットアップすることができます。
+
+### Gitの設定
+
+HOSのソースコードの改行コードとWindowsの標準改行コード間での改行コード変換を抑止するために以下のコマンドをPower Shellから入力します。
+
+```Powershell
+ git config --global core.autoCRLF false
+```
 
 ### Visual Studio Code環境のセットアップ
 
