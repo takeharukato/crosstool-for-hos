@@ -68,7 +68,7 @@ build: prepare
 		$(call BUILD_IMAGE_ONE,${BUILD_CPU}) \
 	else \
 		echo "Please specify BUILD_CPU environment variable."; \
-	fi; \
+	fi;
 
 build-each: prepare
 	$(foreach cpu, ${TARGET_CPUS},$(call BUILD_IMAGE_ONE,${cpu}))
