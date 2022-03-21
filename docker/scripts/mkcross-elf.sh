@@ -28,7 +28,6 @@ declare -A tool_names=(
     ["newlib"]="newlib-4.1.0"
     ["gdb"]="gdb-11.2"
     ["qemu"]="qemu-6.2.0"
-    ["i386-qemu"]="qemu-6.1.0"
     ["h8300-binutils"]="binutils-2.24"
     ["h8300-gcc"]="gcc-8.4.0"
     ["h8300-newlib"]="newlib-2.5.0"
@@ -42,7 +41,6 @@ declare -A tool_archives=(
     ["gcc-11.2.0"]="gcc-11.2.0.tar.gz"
     ["newlib-4.1.0"]="newlib-4.1.0.tar.gz"
     ["gdb-11.2"]="gdb-11.2.tar.gz"
-    ["qemu-6.1.0"]="qemu-6.1.0.tar.xz"
     ["qemu-6.2.0"]="qemu-6.2.0.tar.xz"
     ["binutils-2.24"]="binutils-2.24.tar.gz"
     ["gcc-8.4.0"]="gcc-8.4.0.tar.gz"
@@ -58,7 +56,6 @@ declare -A tool_urls=(
     ["gcc-11.2.0"]="https://ftp.gnu.org/gnu/gcc/gcc-11.2.0/gcc-11.2.0.tar.gz"
     ["newlib-4.1.0"]="https://sourceware.org/pub/newlib/newlib-4.1.0.tar.gz"
     ["gdb-11.2"]="https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.gz"
-    ["qemu-6.1.0"]="https://download.qemu.org/qemu-6.1.0.tar.xz"
     ["qemu-6.2.0"]="https://download.qemu.org/qemu-6.2.0.tar.xz"
     ["binutils-2.24"]="https://ftp.gnu.org/gnu/binutils/binutils-2.24.tar.gz"
     ["gcc-8.4.0"]="https://ftp.gnu.org/gnu/gcc/gcc-8.4.0/gcc-8.4.0.tar.gz"
@@ -1332,6 +1329,9 @@ main(){
 
 	export PATH="${prefix}/bin:${orig_path}"
 
+	build_qemu  \
+	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+
 	cross_binutils \
 	     "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 	cross_gcc_stage1 \
@@ -1340,8 +1340,6 @@ main(){
 	cross_gcc_elf_final \
 	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 	cross_gdb "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
-
-	build_qemu  "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
 
 	generate_module_file \
 	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
