@@ -15,7 +15,7 @@
             "stopAtConnect": false,
             "cwd": "${workspaceFolder}/__HOS_USER_PROGRAM_DIR__",
             "env": [{"PATH":"__PREFIX__/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-                "LANG":"C",
+                "LANG":"ja_JP.UTF-8",
                 "CROSS_COMPILE":"__GCC_ARCH__",
                 "GCC_ARCH":"__GCC_ARCH__",
                 "GDB_COMMAND":"__GCC_ARCH__gdb",
