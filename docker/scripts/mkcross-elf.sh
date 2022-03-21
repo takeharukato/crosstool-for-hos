@@ -1398,6 +1398,10 @@ main(){
 if [ -f ${SHELL_INIT_DIR}/bash ]; then
    source ${SHELL_INIT_DIR}/bash
 fi
+#
+# set prompt
+#
+export PS1="[\u@\h \W]"
 EOF
     fi
 
