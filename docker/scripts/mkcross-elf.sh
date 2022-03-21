@@ -954,21 +954,17 @@ build_qemu(){
     popd
 
     pushd "${build_dir}"
-    ${src_dir}/${tool}/configure                              \
-	      --prefix="${prefix}"                            \
-	      --target-list="${qemu_target_list}"             \
-	      --enable-user                                   \
-	      --enable-linux-user                             \
-	      --interp-prefix=${sys_root}                     \
-	      --enable-system                                 \
-	      --enable-tcg-interpreter                        \
-	      --enable-modules                                \
-	      --enable-debug-tcg                              \
-	      --enable-debug-info                             \
-	      --enable-membarrier                             \
-	      --enable-profiler                               \
-	      --disable-pie                                   \
-	      --disable-werror
+    ${src_dir}/${tool}/configure                        \
+	--prefix="${prefix}"                            \
+	--target-list="${qemu_target_list}"             \
+	--enable-user                                   \
+	--enable-linux-user                             \
+	--enable-system                                 \
+	--interp-prefix="${sys_root}"                   \
+	--enable-tcg-interpreter                        \
+	--enable-modules                                \
+	--enable-membarrier                             \
+	--disable-werror
 
     make -j`nproc`
     make install
@@ -1333,22 +1329,22 @@ main(){
 	export PATH="${prefix}/bin:${orig_path}"
 
 	build_qemu  \
-	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+	    "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 
 	cross_binutils \
-	     "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+	     "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 	cross_gcc_stage1 \
-	     "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
-	cross_newlib "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+	     "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	cross_newlib "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 	cross_gcc_elf_final \
-	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
-	cross_gdb "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+	    "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	cross_gdb "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 
 	generate_module_file \
-	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+	    "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 
 	generate_vscode_file \
-	    "${cpu}" "${target_name}" "${prefix}" "${build_dir}" "${src_dir}" "${toolchain_type}"
+	    "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 
 
 	#
