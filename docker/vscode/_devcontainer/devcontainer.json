@@ -51,6 +51,7 @@
 		"ionutvmi.path-autocomplete",
 		"christian-kohler.path-intellisense",
 		"ms-vscode.powershell",
+		"waderyan.gitblame",
 		"Natizyskunk.sftp"
 	],
 
