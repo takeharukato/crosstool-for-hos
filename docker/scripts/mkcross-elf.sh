@@ -100,9 +100,9 @@ declare -A qemu_cpus=(
 # QEmuの起動オプション
 #
 declare -A qemu_opts=(
-    ["i386"]="-boot a -drive file=__HOS_USER_PROGRAM_IMG__,format=raw,if=floppy,media=disk,readonly=off,index=0 -serial mon:stdio -nographic"
-    ["riscv32"]="-bios none -machine virt -m 32M -serial mon:stdio -nographic"
-    ["riscv64"]="-bios none -machine virt -m 32M -serial mon:stdio -nographic"
+    ["i386"]="-boot a -drive file=sampledbg.img,format=raw,if=floppy,media=disk,readonly=off,index=0 -serial mon:stdio -nographic"
+    ["riscv32"]="-bios none -machine virt -m 32M -serial mon:stdio -nographic -kernel sampledbg.elf"
+    ["riscv64"]="-bios none -machine virt -m 32M -serial mon:stdio -nographic -kernel sampledbg.elf"
     )
 
 #

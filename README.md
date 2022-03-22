@@ -395,8 +395,6 @@ HOSのソースリポジトリをホスト上のワークスペースディレ�
 
 - `__HOS_USER_PROGRAM_DIR__` ユーザプログラムを構築する際のカレントディレクトリを`ワークスペースからの相対パス`で指定します。例えば, ワークスペースディレクトリの直下に`hos-v4a`という名前で, HOSのリポジトリをクローンしており, リポジトリ内の`sample/riscv/virt/gcc`ディレクトリ内で`make`コマンドを実行することでバイナリを生成する場合は,`__HOS_USER_PROGRAM_DIR__`を`hos-v4a/sample/riscv/virt/gcc`に書き換えます。
 
-- `__HOS_USER_PROGRAM_IMG__` qemuのシステムシミュレータ(qemu-system-riscv64等)の`-kernel`オプションに指定するファイル名やIA32のディスクイメージファイルを指定します。典型的には, `__HOS_USER_PROGRAM_FILE__`と同じファイル名に書き換えます。 ELFの代わりにターゲット用のイメージファイルを読み込む場合(IA32など)は, そのイメージファイル名に書き換えます。
-
 ### ディレクトリ名の変更
 
 `_devcontainer`ディレクトリを`.devcontainer`にリネームします
@@ -479,7 +477,6 @@ c:\Users\hosWindows\vscodeEnv\riscv>
 
 #### .vscode/tasks.jsonの修正点
 
-- キー`"QEMU_KERNEL_OPT"` の値をデバッグ情報付きのELFファイルである`sampledbg.elf`に設定
 - キー`"cwd"` の値を上記`"QEMU_KERNEL_OPT"`に設定したファイルのディレクトリ(デバッガ起動時のディレクトリ)である`${workspaceFolder}/hos-v4a/sample/riscv/virt/gcc`に設定
 
 修正内容のdiffは以下のようになります。
@@ -490,10 +487,8 @@ c:\Users\hosWindows\vscodeEnv\riscv>
 @@ -9,8 +9,8 @@
                "GDB_COMMAND":"riscv64-unknown-elf-gdb",
                "QEMU":"qemu-system-riscv64",
-               "QEMU_OPTS":"-bios none -machine virt -m 32M -serial mon:stdio -nographic",
--              "QEMU_KERNEL_OPT": "__HOS_USER_PROGRAM_IMG__"},
+               "QEMU_OPTS":"-bios none -machine virt -m 32M -serial mon:stdio -nographic -kernel sampledbg.elf",
 -       "cwd": "${workspaceFolder}/__HOS_USER_PROGRAM_DIR__"
-+              "QEMU_KERNEL_OPT": "sampledbg.elf"},
 +       "cwd": "${workspaceFolder}/hos-v4a/sample/riscv/virt/gcc"
      },
      "tasks": [
