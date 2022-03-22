@@ -123,6 +123,33 @@ declare -A cpu_target_cflags=(
     )
 
 #
+#ターゲットボードリスト
+#
+board_list=( \
+	     "mips:jelly:sample/mips/jelly/gcc:sampledbg.elf" \
+		 "i386:pcat:sample/ia32/pcat/gcc:sampledbg.out" \
+		 "microblazeel:mb_v8_axi:sample/mb/mb_v8_axi/gcc:sampledbg.elf" \
+		 "microblaze:smm:sample/mb/smm/gcc:sampledbg.elf" \
+		 "sh2:sh7262:sample/sh/sh7262/gcc:sampledbg.out" \
+		 "sh2:sh7144:sample/sh/sh7144/gcc:sampledbg.out" \
+		 "h8300:h83069:sample/h8/h83069/gcc:sampledbg.out" \
+		 "riscv64:virt:sample/riscv/virt/gcc:sampledbg.elf" \
+		 "riscv32:virt:sample/riscv/virt/gcc:sampledbg.elf" \
+		 "arm:zynqmp_rpu_cpp:sample/arm/zynqmp_rpu_cpp/gcc:sampledbg.elf" \
+		 "arm:stm32f103:sample/arm/stm32f103/gcc:sampledbg.elf" \
+		 "arm:zynq7000:sample/arm/zynq7000/gcc:sampledbg.elf" \
+		 "arm:zynqmp_rpu:sample/arm/zynqmp_rpu/gcc:sampledbg.elf" \
+		 "arm:lpc1114:sample/arm/lpc1114/gcc:sampledbg.elf" \
+		 "arm:aduc7000:sample/arm/aduc7000/gcc:sampledbg.out" \
+		 "arm:lpc2000:sample/arm/lpc2000/gcc:sampledbg.out" \
+	   )
+
+#
+# HOSソースコード展開名
+#
+MKCROSS_HOS_SRCDIR="hos-v4a"
+
+#
 # リモートGDB接続先ポート
 #
 MKCROSS_REMOTE_GDB_PORT=1234
@@ -1042,6 +1069,168 @@ prepend-path    PATH    \${${target_var}_gcc_path}
 EOF
 }
 
+
+#
+# generate_vscode_file_one 入力ファイル 出力ファイル ターゲットCPU ターゲット名 プレフィクス QEMUのCPU名 QEMUのオプション ユーザプログラムディレクトリ ユーザプログラムファイル
+#
+generate_vscode_file_one(){
+    local infile="$1"
+    local outfile="$2"
+    local cpu="$3"
+    local target="$4"
+    local prefix="$5"
+    local qemu_cpu="$6"
+    local qemu_opt="$7"
+    local prog_dir="$8"
+    local prog_file="$9"
+    local qemu_cmd
+
+    echo "@@@ Generate: ${outfile} @@@"
+
+    if [ "x${qemu_cpu}" != "x" ]; then
+	qemu_cmd="qemu-system-${qemu_cpu}"
+    fi
+
+    rm -f "${outfile}"
+    cat "${infile}" |\
+	sed -e "s|__CPU__|${cpu}|g" \
+	    -e "s|__PREFIX__|${prefix}|g" \
+	    -e "s|__GCC_ARCH__|${target}-|g" \
+	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
+	    -e "s|__QEMU__|${qemu_cmd}|g" \
+	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
+	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+	    -e "s|__HOS_USER_PROGRAM_DIR__|${prog_dir}|g" \
+	    -e "s|__HOS_USER_PROGRAM_FILE__|${prog_file}|g" \
+	> "${outfile}"
+}
+
+#
+# generate_vscode_file_for_board 出力先ディレクトリ ターゲットCPU ターゲット名 プレフィクス QEMUのCPU名 QEMUのオプション ユーザプログラムディレクトリ ユーザプログラムファイル
+#
+generate_vscode_file_for_board(){
+    local outdir="$1"
+    local cpu="$2"
+    local target="$3"
+    local prefix="$4"
+    local qemu_cpu="$5"
+    local qemu_opt="$6"
+    local prog_dir="$7"
+    local prog_file="$8"
+
+    # vscodeのワークスペース定義ディレクトリ
+    vscode_workspace_dir="${prefix}/vscode/${outdir}"
+    # vscodeの.devcontainerディレクトリ
+    vscode_devcontainer_dir="${vscode_workspace_dir}/_devcontainer"
+    # vscodeの.vscodeディレクトリ
+    vscode_vscode_dir="${vscode_workspace_dir}/_vscode"
+
+    # vscodeのワークスペース定義ディレクトリを作成
+    mkdir -p "${vscode_workspace_dir}"
+    # vscodeの.devcontainerディレクトリを作成
+    mkdir -p "${vscode_devcontainer_dir}"
+    # vscodeの.vscodeディレクトリを作成
+    mkdir -p "${vscode_vscode_dir}"
+
+    #
+    # 共通ファイル
+    #
+    generate_vscode_file_one \
+	"${MKCROSS_VSCODE_TEMPL_DIR}/sample.code-workspace" \
+	"${vscode_workspace_dir}/hos-${cpu}.code-workspace" \
+	"${cpu}" \
+	"${target}" \
+	"${prefix}" \
+	"${qemu_cpu}" \
+	"${qemu_opt}" \
+	"${prog_dir}" \
+	"${prog_file}"
+
+    #
+    #.vscode/c_cpp_properties.json
+    #
+    generate_vscode_file_one \
+	"${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/c_cpp_properties.json" \
+	"${vscode_vscode_dir}/c_cpp_properties.json" \
+	"${cpu}" \
+	"${target}" \
+	"${prefix}" \
+	"${qemu_cpu}" \
+	"${qemu_opt}" \
+	"${prog_dir}" \
+	"${prog_file}"
+
+    #
+    #.vscode/launch.json
+    #
+    generate_vscode_file_one \
+	"${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/launch.json" \
+	"${vscode_vscode_dir}/launch.json" \
+	"${cpu}" \
+	"${target}" \
+	"${prefix}" \
+	"${qemu_cpu}" \
+	"${qemu_opt}" \
+	"${prog_dir}" \
+	"${prog_file}"
+
+    #
+    #.vscode/tasks.json
+    #
+    generate_vscode_file_one \
+	"${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/tasks.json" \
+	"${vscode_vscode_dir}/tasks.json" \
+	"${cpu}" \
+	"${target}" \
+	"${prefix}" \
+	"${qemu_cpu}" \
+	"${qemu_opt}" \
+	"${prog_dir}" \
+	"${prog_file}"
+
+    #
+    #.vscode/settings.json
+    #
+    generate_vscode_file_one \
+	"${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/settings.json" \
+	"${vscode_vscode_dir}/settings.json" \
+	"${cpu}" \
+	"${target}" \
+	"${prefix}" \
+	"${qemu_cpu}" \
+	"${qemu_opt}" \
+	"${prog_dir}" \
+	"${prog_file}"
+
+    #
+    #.devcontainer/devcontainer.json
+    #
+    generate_vscode_file_one \
+	"${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/devcontainer.json" \
+	"${vscode_devcontainer_dir}/devcontainer.json" \
+	"${cpu}" \
+	"${target}" \
+	"${prefix}" \
+	"${qemu_cpu}" \
+	"${qemu_opt}" \
+	"${prog_dir}" \
+	"${prog_file}"
+
+    #
+    #.devcontainer/Dockerfile
+    #
+    generate_vscode_file_one \
+	"${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/Dockerfile" \
+	"${vscode_devcontainer_dir}/Dockerfile" \
+	"${cpu}" \
+	"${target}" \
+	"${prefix}" \
+	"${qemu_cpu}" \
+	"${qemu_opt}" \
+	"${prog_dir}" \
+	"${prog_file}"
+}
 #
 # generate_vscode_file ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
 #
@@ -1049,14 +1238,18 @@ generate_vscode_file(){
     local cpu="$1"
     local target="$2"
     local prefix="$3"
-    local key="lmod"
-    local mod_file
     local target_var
     local qemu_cpu
     local qemu_opt
     local vscode_workspace_dir
     local vscode_devcontainer_dir
     local vscode_vscode_dir
+    local inf
+    local inf_array
+    local inf_cpu
+    local inf_board
+    local inf_dir
+    local inf_prog_file
 
     target_var=`echo ${target}|sed -e 's|-|_|g'`
 
@@ -1077,135 +1270,40 @@ generate_vscode_file(){
     fi
     echo "var: ${target_var}"
 
-    # vscodeのワークスペース定義ディレクトリ
-    vscode_workspace_dir="${prefix}/vscode"
-    # vscodeの.devcontainerディレクトリ
-    vscode_devcontainer_dir="${vscode_workspace_dir}/_devcontainer"
-    # vscodeの.vscodeディレクトリ
-    vscode_vscode_dir="${vscode_workspace_dir}/_vscode"
+    #
+    # 共通テンプレート
+    #
+    generate_vscode_file_for_board "common" \
+    	"${cpu}" \
+	"${target}" \
+	"${prefix}" \
+	"${qemu_cpu}" \
+	"${qemu_opt}" \
+	"__HOS_USER_PROGRAM_DIR__" \
+	"__HOS_USER_PROGRAM_FILE__"
 
-    # vscodeのワークスペース定義ディレクトリを作成
-    mkdir -p "${vscode_workspace_dir}"
-    # vscodeの.devcontainerディレクトリを作成
-    mkdir -p "${vscode_devcontainer_dir}"
-    # vscodeの.vscodeディレクトリを作成
-    mkdir -p "${vscode_vscode_dir}"
+    for inf in ${board_list[@]}
+    do
+	inf_array=($(echo "${inf}" | tr ":" " "))
+	inf_cpu=${inf_array[0]}
+	inf_board=${inf_array[1]}
+	inf_dir=${inf_array[2]}
+	inf_prog_file=${inf_array[3]}
+	if [ "${inf_cpu}" = "${cpu}" ]; then
+	    echo "@@@ board:${inf_board} dir:${inf_dir} @@@"
+	    generate_vscode_file_for_board "${inf_board}" \
+    					   "${cpu}" \
+					   "${target}" \
+					   "${prefix}" \
+					   "${qemu_cpu}" \
+					   "${qemu_opt}" \
+					   "${MKCROSS_HOS_SRCDIR}/${inf_dir}" \
+					   "${inf_prog_file}"
 
-    #
-    # 共通ファイル
-    #
-    rm -f "${vscode_workspace_dir}/hos-${cpu}.code-workspace"
-    cat "${MKCROSS_VSCODE_TEMPL_DIR}/sample.code-workspace" |\
-	sed -e "s|__CPU__|${cpu}|g" \
-	    -e "s|__PREFIX__|${prefix}|g" \
-	    -e "s|__GCC_ARCH__|${target}-|g" \
-	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
-	    -e "s|__QEMU__|qemu-system-${qemu_cpu}|g" \
-	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
-	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	> "${vscode_workspace_dir}/hos-${cpu}.code-workspace"
-
-    #
-    #.vscode/c_cpp_properties.json
-    #
-    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/c_cpp_properties.json" |\
-	sed -e "s|__CPU__|${cpu}|g" \
-	    -e "s|__PREFIX__|${prefix}|g" \
-	    -e "s|__GCC_ARCH__|${target}-|g" \
-	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
-	    -e "s|__QEMU__|qemu-system-${qemu_cpu}|g" \
-	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
-	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	    > "${vscode_vscode_dir}/c_cpp_properties.json"
+	fi
+    done
 
 
-    #
-    #.vscode/launch.json
-    #
-    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/launch.json" |\
-	sed -e "s|__CPU__|${cpu}|g" \
-	    -e "s|__PREFIX__|${prefix}|g" \
-	    -e "s|__GCC_ARCH__|${target}-|g" \
-	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
-	    -e "s|__QEMU__|qemu-system-${qemu_cpu}|g" \
-	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
-	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	    > "${vscode_vscode_dir}/launch.json"
-
-    #
-    #.vscode/tasks.json
-    #
-    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/tasks.json" |\
-	sed -e "s|__CPU__|${cpu}|g" \
-	    -e "s|__PREFIX__|${prefix}|g" \
-	    -e "s|__GCC_ARCH__|${target}-|g" \
-	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
-	    -e "s|__QEMU__|qemu-system-${qemu_cpu}|g" \
-	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
-	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	    > "${vscode_vscode_dir}/tasks.json"
-
-    #
-    #.vscode/tasks.json
-    #
-    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/tasks.json" |\
-	sed -e "s|__CPU__|${cpu}|g" \
-	    -e "s|__PREFIX__|${prefix}|g" \
-	    -e "s|__GCC_ARCH__|${target}-|g" \
-	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
-	    -e "s|__QEMU__|qemu-system-${qemu_cpu}|g" \
-	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
-	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	    > "${vscode_vscode_dir}/tasks.json"
-
-    #
-    #.vscode/settings.json
-    #
-    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/settings.json" |\
-	sed -e "s|__CPU__|${cpu}|g" \
-	    -e "s|__PREFIX__|${prefix}|g" \
-	    -e "s|__GCC_ARCH__|${target}-|g" \
-	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
-	    -e "s|__QEMU__|qemu-system-${qemu_cpu}|g" \
-	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
-	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	    > "${vscode_vscode_dir}/settings.json"
-
-    #
-    #.devcontainer/devcontainer.json
-    #
-    echo "@@@ ${vscode_devcontainer_dir}/devcontainer.json @@@"
-    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/devcontainer.json" |\
-	sed -e "s|__CPU__|${cpu}|g" \
-	    -e "s|__PREFIX__|${prefix}|g" \
-	    -e "s|__GCC_ARCH__|${target}-|g" \
-	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
-	    -e "s|__QEMU__|qemu-system-${qemu_cpu}|g" \
-	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
-	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	    |tee "${vscode_devcontainer_dir}/devcontainer.json"
-
-    #
-    #.devcontainer/Dockerfile
-    #
-    echo "@@@ ${vscode_devcontainer_dir}/Dockerfile @@@"
-    cat "${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/Dockerfile" |\
-	sed -e "s|__CPU__|${cpu}|g" \
-	    -e "s|__PREFIX__|${prefix}|g" \
-	    -e "s|__GCC_ARCH__|${target}-|g" \
-	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
-	    -e "s|__QEMU__|qemu-system-${qemu_cpu}|g" \
-	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
-	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-	    |tee "${vscode_devcontainer_dir}/Dockerfile"
 }
 
 #

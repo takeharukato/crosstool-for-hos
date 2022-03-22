@@ -39,12 +39,12 @@
             "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make clean;"]
         },
         {
-            "label": "DistClean",
+            "label": "MostlyClean",
             "type": "shell",
             "problemMatcher": [
                 "$gcc"
             ],
-            "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make distclean;"]
+            "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make mostlyclean;"]
         },
         {
             "label": "CleanBuild",
