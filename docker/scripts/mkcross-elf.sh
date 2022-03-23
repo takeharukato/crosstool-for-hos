@@ -142,6 +142,13 @@ board_list=( \
 		 "arm:lpc1114:sample/arm/lpc1114/gcc:sampledbg.elf" \
 		 "arm:aduc7000:sample/arm/aduc7000/gcc:sampledbg.out" \
 		 "arm:lpc2000:sample/arm/lpc2000/gcc:sampledbg.out" \
+		 "armhw:zynqmp_rpu_cpp:sample/arm/zynqmp_rpu_cpp/gcc:sampledbg.elf" \
+		 "armhw:stm32f103:sample/arm/stm32f103/gcc:sampledbg.elf" \
+		 "armhw:zynq7000:sample/arm/zynq7000/gcc:sampledbg.elf" \
+		 "armhw:zynqmp_rpu:sample/arm/zynqmp_rpu/gcc:sampledbg.elf" \
+		 "armhw:lpc1114:sample/arm/lpc1114/gcc:sampledbg.elf" \
+		 "armhw:aduc7000:sample/arm/aduc7000/gcc:sampledbg.out" \
+		 "armhw:lpc2000:sample/arm/lpc2000/gcc:sampledbg.out" \
 	   )
 
 #
