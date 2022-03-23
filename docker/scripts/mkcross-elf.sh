@@ -225,7 +225,7 @@ get_tool_name(){
     tool_key="${cpu}-${tool}"
 
     if [ "x${tool_names[${tool_key}]}" != "x" ]; then
-	rc="${tool_names[${tool_key}]}"
+	    rc="${tool_names[${tool_key}]}"
     fi
 
     echo "${rc}"
@@ -251,9 +251,9 @@ get_archive_name(){
     if [ "x${tool_names[${tool}]}" != "x" ]; then
 	archive_key="${tool_names[${tool}]}"
 	archive="${tool_archives[${archive_key}]}"
-	if [ "x${archive}" != "x" ]; then
-	    rc="${archive}"
-	fi
+	    if [ "x${archive}" != "x" ]; then
+	        rc="${archive}"
+    	fi
     fi
 
     #
@@ -262,11 +262,11 @@ get_archive_name(){
     tool_key="${cpu}-${tool}"
 
     if [ "x${tool_names[${tool_key}]}" != "x" ]; then
-	archive_key="${tool_names[${tool_key}]}"
-	archive="${tool_archives[${archive_key}]}"
-	if [ "x${archive}" != "x" ]; then
-	    rc="${archive}"
-	fi
+	    archive_key="${tool_names[${tool_key}]}"
+	    archive="${tool_archives[${archive_key}]}"
+    	if [ "x${archive}" != "x" ]; then
+	        rc="${archive}"
+    	fi
     fi
 
     echo "${rc}"
@@ -288,30 +288,30 @@ download_archives(){
 	#
 	# 共通アーカイブのダウンロード
 	#
-	if [ "x${tool_names[${tool}]}" != "x" ]; then
-	    archive_key="${tool_names[${tool}]}"
-	    url="${tool_urls[${archive_key}]}"
-	    if [ "x${url}" != "x" ]; then
-		echo "download ${tool} from ${url}"
-		curl -s -OL "${url}"
+	    if [ "x${tool_names[${tool}]}" != "x" ]; then
+	       archive_key="${tool_names[${tool}]}"
+	       url="${tool_urls[${archive_key}]}"
+	       if [ "x${url}" != "x" ]; then
+	    	    echo "download ${tool} from ${url}"
+	        	curl -s -OL "${url}"
+	        fi
 	    fi
-	fi
 
 	#
 	# CPU固有のアーカイブをダウンロード
 	#
-	for cpu in "${targets[@]}"
-	do
-	    tool_key="${cpu}-${tool}"
-	    if [ "x${tool_names[${tool_key}]}" != "x" ]; then
-		archive_key="${tool_names[${tool_key}]}"
-		url="${tool_urls[${archive_key}]}"
-		if [ "x${url}" != "x" ]; then
-		    echo "${cpu} uses ${tool} from ${url}"
-		    curl -s -OL "${url}"
-		fi
-	    fi
-	done
+    	for cpu in "${targets[@]}"
+    	do
+    	    tool_key="${cpu}-${tool}"
+    	    if [ "x${tool_names[${tool_key}]}" != "x" ]; then
+    		    archive_key="${tool_names[${tool_key}]}"
+	    	    url="${tool_urls[${archive_key}]}"
+	    	    if [ "x${url}" != "x" ]; then
+	    	        echo "${cpu} uses ${tool} from ${url}"
+	    	        curl -s -OL "${url}"
+	    	    fi
+	        fi
+	    done
     done
 
     popd
@@ -345,18 +345,18 @@ cross_binutils(){
     archive=`get_archive_name ${cpu} ${key}`
 
     if [ "x${archive}" = "x" ]; then
-	echo "No ${key} for ${cpu}"
-	return 1
+    	echo "No ${key} for ${cpu}"
+    	return 1
     fi
 
     mkdir -p "${sys_root}"
     if [ -d "${src_dir}" ]; then
-	rm -fr "${src_dir}"
+	    rm -fr "${src_dir}"
     fi
     mkdir -p "${src_dir}"
 
     if [ -d "${build_dir}" ]; then
-	rm -fr "${build_dir}"
+    	rm -fr "${build_dir}"
     fi
     mkdir -p "${build_dir}"
 
@@ -365,9 +365,9 @@ cross_binutils(){
     #
     sim_arg=""
     case "${cpu}" in
-	microblaze | microblazeel)
-	    sim_arg="--disable-sim"
-	    ;;
+    	microblaze | microblazeel)
+	        sim_arg="--disable-sim"
+	        ;;
     esac
 
     pushd "${src_dir}"
@@ -395,8 +395,8 @@ cross_binutils(){
 
     find ${prefix} -name '*.la'|while read rmfile
     do
-	echo "Remove ${rmfile}"
-	rm -f ${rmfile}
+	    echo "Remove ${rmfile}"
+	    rm -f ${rmfile}
     done
 
     #
@@ -406,9 +406,9 @@ cross_binutils(){
 
     for rmfile in addr2line ar as c++filt elfedit gprof ld ld.bfd nm objcopy objdump ranlib readelf size strings strip
     do
-	if [ -f "${prefix}/bin/${rmfile}" ]; then
-	    rm -f "${prefix}/bin/${rmfile}"
-	fi
+	    if [ -f "${prefix}/bin/${rmfile}" ]; then
+	        rm -f "${prefix}/bin/${rmfile}"
+	    fi
     done
 }
 
@@ -443,18 +443,18 @@ cross_gcc_stage1(){
     archive=`get_archive_name ${cpu} ${key}`
 
     if [ "x${archive}" = "x" ]; then
-	echo "No ${key} for ${cpu}"
-	return 1
+	    echo "No ${key} for ${cpu}"
+	    return 1
     fi
 
     mkdir -p "${sys_root}"
     if [ -d "${src_dir}" ]; then
-	rm -fr "${src_dir}"
+	    rm -fr "${src_dir}"
     fi
     mkdir -p "${src_dir}"
 
     if [ -d "${build_dir}" ]; then
-	rm -fr "${build_dir}"
+	    rm -fr "${build_dir}"
     fi
     mkdir -p "${build_dir}"
 
@@ -483,7 +483,7 @@ cross_gcc_stage1(){
 	--disable-decimal-float                              \
 	--disable-libatomic                                  \
 	--disable-libitm                                     \
-        --disable-libquadmath                                \
+    --disable-libquadmath                                \
 	--disable-libvtv                                     \
 	--disable-libcilkrts                                 \
 	--disable-libmudflap                                 \
@@ -531,8 +531,8 @@ cross_gcc_stage1(){
 
     find ${prefix} -name '*.la'|while read rmfile
     do
-	echo "Remove ${rmfile}"
-	rm -f ${rmfile}
+	    echo "Remove ${rmfile}"
+	    rm -f ${rmfile}
     done
 
     #
@@ -541,9 +541,9 @@ cross_gcc_stage1(){
     echo "Remove cpp gcc gcc-ar gcc-nm gcc-ranlib gcov ${target}-cc on ${prefix}/bin"
     for rmfile in cpp gcc gcc-ar gcc-nm gcc-ranlib gcov ${target}-cc
     do
-	if [ -f "${prefix}/bin/${rmfile}" ]; then
-	    rm -f "${prefix}/bin/${rmfile}"
-	fi
+	    if [ -f "${prefix}/bin/${rmfile}" ]; then
+	        rm -f "${prefix}/bin/${rmfile}"
+	    fi
     done
 }
 
@@ -580,19 +580,19 @@ cross_newlib(){
     archive=`get_archive_name ${cpu} ${key}`
 
     if [ "x${archive}" = "x" ]; then
-	echo "No ${key} for ${cpu}"
-	return 1
+	    echo "No ${key} for ${cpu}"
+	    return 1
     fi
 
 
     mkdir -p "${sys_root}"
     if [ -d "${src_dir}" ]; then
-	rm -fr "${src_dir}"
+	    rm -fr "${src_dir}"
     fi
     mkdir -p "${src_dir}"
 
     if [ -d "${build_dir}" ]; then
-	rm -fr "${build_dir}"
+	    rm -fr "${build_dir}"
     fi
     mkdir -p "${build_dir}"
 
@@ -617,13 +617,13 @@ cross_newlib(){
     mkdir -p ${sys_root}/usr
     find ${sys_root}/usr/${target} | while read mvfile
     do
-	if [ -e "${mvfile}" ]; then
-	    echo "Move ${mvfile} to ${sys_root}/usr"
-	    mv "${mvfile}" "${sys_root}/usr"
-	fi
+	    if [ -e "${mvfile}" ]; then
+	        echo "Move ${mvfile} to ${sys_root}/usr"
+	        mv "${mvfile}" "${sys_root}/usr"
+	    fi
     done
     if [ -d "${sys_root}/usr/${target}" ]; then
-	rm -fr "${sys_root}/usr/${target}"
+	    rm -fr "${sys_root}/usr/${target}"
     fi
 
     #
@@ -635,14 +635,13 @@ cross_newlib(){
     mkdir -p ${prefix}/${target}/lib
     for dir in include lib
     do
-	find "${sys_root}/usr/${dir}" | while read mvfile
-	do
-	    basename=`basename ${mvfile}`
-	    echo "link ../../rfs/usr/${dir}/${basename} from ${prefix}/${target}/${dir}"
-	    ln -sf "../../rfs/usr/${dir}/${basename}" "${prefix}/${target}/${dir}"
-	done
+	    find "${sys_root}/usr/${dir}" | while read mvfile
+	    do
+	        basename=`basename ${mvfile}`
+	        echo "link ../../rfs/usr/${dir}/${basename} from ${prefix}/${target}/${dir}"
+	        ln -sf "../../rfs/usr/${dir}/${basename}" "${prefix}/${target}/${dir}"
+	    done
     done
-
 }
 
 #
@@ -682,12 +681,12 @@ cross_gcc_elf_final(){
 
     mkdir -p "${sys_root}"
     if [ -d "${src_dir}" ]; then
-	rm -fr "${src_dir}"
+    	rm -fr "${src_dir}"
     fi
     mkdir -p "${src_dir}"
 
     if [ -d "${build_dir}" ]; then
-	rm -fr "${build_dir}"
+    	rm -fr "${build_dir}"
     fi
     mkdir -p "${build_dir}"
 
@@ -735,30 +734,30 @@ cross_gcc_elf_final(){
     #         コンパイル時間を短縮するためNative Language Supportを無効化する
     env CFLAGS_FOR_TARGET="${MKCROSS_OPT_FLAGS_FOR_TARGET} ${target_cflags}"   \
     ${src_dir}/${tool}/configure                              \
-	      --prefix="${prefix}"                            \
-	      --target="${target}"                            \
-	      --with-local-prefix="${prefix}/${target}"       \
-	      --disable-shared                                \
-	      --disable-werror                                \
-	      --disable-nls                                   \
-	--enable-languages="c,c++,lto"                       \
-	--disable-bootstrap                                  \
-	--disable-multilib                                   \
-	--with-newlib                                        \
-	--disable-threads                                    \
-	--disable-libatomic                                  \
-	--disable-libitm                                     \
-	--disable-libvtv                                     \
-	--disable-libcilkrts                                 \
-	--disable-libmpx                                     \
-	--disable-libgomp                                    \
-	--disable-libsanitizer                                \
-	--enable-decimal-float                               \
+	    --prefix="${prefix}"                            \
+	    --target="${target}"                            \
+	    --with-local-prefix="${prefix}/${target}"       \
+	    --disable-shared                                \
+	    --disable-werror                                \
+	    --disable-nls                                   \
+    	--enable-languages="c,c++,lto"                       \
+    	--disable-bootstrap                                  \
+	    --disable-multilib                                   \
+	    --with-newlib                                        \
+	    --disable-threads                                    \
+	    --disable-libatomic                                  \
+	    --disable-libitm                                     \
+	    --disable-libvtv                                     \
+	    --disable-libcilkrts                                 \
+	    --disable-libmpx                                     \
+	    --disable-libgomp                                    \
+	    --disable-libsanitizer                                \
+	    --enable-decimal-float                               \
         --enable-libquadmath                                 \
-	--enable-libmudflap                                  \
-	--enable-libssp                                      \
-	--enable-tls                                         \
-	--with-sysroot="${sys_root}"
+	    --enable-libmudflap                                  \
+	    --enable-libssp                                      \
+	    --enable-tls                                         \
+	    --with-sysroot="${sys_root}"
 
     make -j`nproc`
     make install
@@ -773,8 +772,8 @@ cross_gcc_elf_final(){
 
     find ${prefix} -name '*.la'|while read rmfile
     do
-	echo "Remove ${rmfile}"
-	rm -f ${rmfile}
+	    echo "Remove ${rmfile}"
+	    rm -f ${rmfile}
     done
 
     #
@@ -783,9 +782,9 @@ cross_gcc_elf_final(){
     echo "Remove cpp gcc gcc-ar gcc-nm gcc-ranlib gcov ${target}-cc on ${prefix}/bin"
     for rmfile in cpp gcc gcc-ar gcc-nm gcc-ranlib gcov ${target}-cc
     do
-	if [ -f "${prefix}/bin/${rmfile}" ]; then
-	    rm -f "${prefix}/bin/${rmfile}"
-	fi
+	    if [ -f "${prefix}/bin/${rmfile}" ]; then
+	        rm -f "${prefix}/bin/${rmfile}"
+	    fi
     done
 
     #
@@ -793,7 +792,6 @@ cross_gcc_elf_final(){
     #
     rm -f ${prefix}/bin/${target}-cc
     ln -sf ${target}-gcc ${prefix}/bin/${target}-cc
-
 }
 
 #
@@ -826,18 +824,18 @@ cross_gdb(){
     archive=`get_archive_name ${cpu} ${key}`
 
     if [ "x${archive}" = "x" ]; then
-	echo "No ${key} for ${cpu}"
-	return 1
+    	echo "No ${key} for ${cpu}"
+    	return 1
     fi
 
     mkdir -p "${sys_root}"
     if [ -d "${src_dir}" ]; then
-	rm -fr "${src_dir}"
+    	rm -fr "${src_dir}"
     fi
     mkdir -p "${src_dir}"
 
     if [ -d "${build_dir}" ]; then
-	rm -fr "${build_dir}"
+    	rm -fr "${build_dir}"
     fi
     mkdir -p "${build_dir}"
 
@@ -846,27 +844,27 @@ cross_gdb(){
     #
     python_path=`which python`
     if [ "none${python_path}" = "none" ]; then
-	python_path=`which python3`
+    	python_path=`which python3`
 	if [ "none${python_path}" = "none" ]; then
 	    python_path=`which python2`
 	fi
     fi
 
     if [ "none${python_path}" = "none" ]; then
-	python_path='none'
+    	python_path='none'
     fi
 
     if [ "${python_path}" != "none" ]; then
 	echo "Python is installed on ${python_path}"
-	python_arg="--with-python=${python_path}"
+    	python_arg="--with-python=${python_path}"
     else
-	python_arg=""
+    	python_arg=""
     fi
 
     case "${cpu}" in
-	v850)
-	    python_arg="--with-python=no"
-	    ;;
+	    v850)
+	        python_arg="--with-python=no"
+	        ;;
     esac
 
     #
@@ -874,9 +872,9 @@ cross_gdb(){
     #
     sim_arg=""
     case "${cpu}" in
-	microblaze | microblazeel)
-	    sim_arg="--disable-sim"
-	    ;;
+	    microblaze | microblazeel)
+	        sim_arg="--disable-sim"
+	        ;;
     esac
 
     pushd "${src_dir}"
@@ -928,8 +926,8 @@ cross_gdb(){
 
     find ${prefix} -name '*.la'|while read rmfile
     do
-	echo "Remove ${rmfile}"
-	rm -f ${rmfile}
+    	echo "Remove ${rmfile}"
+    	rm -f ${rmfile}
     done
 }
 
@@ -952,8 +950,8 @@ build_qemu(){
     qemu_target_list="${qemu_targets[${cpu}]}"
 
     if [ "x${qemu_target_list}" = "x" ]; then
-	echo "No ${key} for ${cpu}"
-	return 1
+    	echo "No ${key} for ${cpu}"
+    	return 1
     fi
 
     echo "@@@ qemu @@@"
@@ -968,18 +966,18 @@ build_qemu(){
     archive=`get_archive_name ${cpu} ${key}`
 
     if [ "x${archive}" = "x" ]; then
-	echo "No ${key} for ${cpu}"
-	return 1
+    	echo "No ${key} for ${cpu}"
+    	return 1
     fi
 
     mkdir -p "${sys_root}"
     if [ -d "${src_dir}" ]; then
-	rm -fr "${src_dir}"
+    	rm -fr "${src_dir}"
     fi
     mkdir -p "${src_dir}"
 
     if [ -d "${build_dir}" ]; then
-	rm -fr "${build_dir}"
+    	rm -fr "${build_dir}"
     fi
     mkdir -p "${build_dir}"
 
@@ -989,16 +987,16 @@ build_qemu(){
 
     pushd "${build_dir}"
     ${src_dir}/${tool}/configure                        \
-	--prefix="${prefix}"                            \
-	--target-list="${qemu_target_list}"             \
-	--enable-user                                   \
-	--enable-linux-user                             \
-	--enable-system                                 \
-	--interp-prefix="${sys_root}"                   \
-	--enable-tcg-interpreter                        \
-	--enable-modules                                \
-	--enable-membarrier                             \
-	--disable-werror
+	    --prefix="${prefix}"                            \
+	    --target-list="${qemu_target_list}"             \
+	    --enable-user                                   \
+	    --enable-linux-user                             \
+	    --enable-system                                 \
+	    --interp-prefix="${sys_root}"                   \
+	    --enable-tcg-interpreter                        \
+	    --enable-modules                                \
+	    --enable-membarrier                             \
+	    --disable-werror
 
     make -j`nproc`
     make install
@@ -1024,7 +1022,7 @@ generate_module_file(){
     qemu_cpu="${qemu_cpus[${cpu}]}"
     qemu_line="# No QEmu system simulator for ${target}"
     if [ "x${qemu_cpu}" != "x" ]; then
-	qemu_line="setenv QEMU	   qemu-system-${qemu_cpu}"
+	    qemu_line="setenv QEMU	   qemu-system-${qemu_cpu}"
     fi
 
     echo "@@@ Environment Module File @@@"
@@ -1033,7 +1031,7 @@ generate_module_file(){
     echo "BuildDir:${build_dir}"
     echo "SourceDir:${src_dir}"
     if [ "x${qemu_cpu}" != "x" ]; then
-	echo "QEmuCPUName:${qemu_cpu}"
+	    echo "QEmuCPUName:${qemu_cpu}"
     fi
     echo "var: ${target_var}"
 
@@ -1095,7 +1093,7 @@ generate_vscode_file_one(){
     echo "@@@ Generate: ${outfile} @@@"
 
     if [ "x${qemu_cpu}" != "x" ]; then
-	qemu_cmd="qemu-system-${qemu_cpu}"
+	    qemu_cmd="qemu-system-${qemu_cpu}"
     fi
 
     rm -f "${outfile}"
@@ -1271,10 +1269,11 @@ generate_vscode_file(){
     echo "SourceDir:${src_dir}"
     echo "ImageName:${THIS_IMAGE_NAME}"
     if [ "x${qemu_cpu}" != "x" ]; then
-	echo "QEmuCPUName:${qemu_cpu}"
+	    echo "QEmuCPUName:${qemu_cpu}"
     fi
+
     if [ "x${qemu_opt}" != "x" ]; then
-	echo "QEmuCPUName:${qemu_opt}"
+	    echo "QEmuCPUName:${qemu_opt}"
     fi
     echo "var: ${target_var}"
 
@@ -1292,23 +1291,22 @@ generate_vscode_file(){
 
     for inf in ${board_list[@]}
     do
-	inf_array=($(echo "${inf}" | tr ":" " "))
-	inf_cpu=${inf_array[0]}
-	inf_board=${inf_array[1]}
-	inf_dir=${inf_array[2]}
-	inf_prog_file=${inf_array[3]}
-	if [ "${inf_cpu}" = "${cpu}" ]; then
-	    echo "@@@ board:${inf_board} dir:${inf_dir} @@@"
-	    generate_vscode_file_for_board "${inf_board}" \
-    					   "${cpu}" \
+    	inf_array=($(echo "${inf}" | tr ":" " "))
+    	inf_cpu=${inf_array[0]}
+    	inf_board=${inf_array[1]}
+    	inf_dir=${inf_array[2]}
+    	inf_prog_file=${inf_array[3]}
+	    if [ "${inf_cpu}" = "${cpu}" ]; then
+	        echo "@@@ board:${inf_board} dir:${inf_dir} @@@"
+	        generate_vscode_file_for_board "${inf_board}" \
+    				   "${cpu}" \
 					   "${target}" \
 					   "${prefix}" \
 					   "${qemu_cpu}" \
 					   "${qemu_opt}" \
 					   "${MKCROSS_HOS_SRCDIR}/${inf_dir}" \
 					   "${inf_prog_file}"
-
-	fi
+    	fi
     done
 
 
@@ -1415,56 +1413,56 @@ main(){
     for cpu in "${targets[@]}"
     do
 
-	toolchain_type="elf"
+	    toolchain_type="elf"
 
-	build_dir="${TOP_DIR}/${cpu}/build"
-	src_dir="${TOP_DIR}/${cpu}/src"
-	prefix="${CROSS_PREFIX}/${cpu}"
+    	build_dir="${TOP_DIR}/${cpu}/build"
+    	src_dir="${TOP_DIR}/${cpu}/src"
+    	prefix="${CROSS_PREFIX}/${cpu}"
 
-	target_name="${cpu}-unknown-${toolchain_type}"
-	if [ "x${cpu_target_names[${cpu}-${toolchain_type}]}" != "x" ]; then
-	    target_name="${cpu_target_names[${cpu}-${toolchain_type}]}"
-	fi
+    	target_name="${cpu}-unknown-${toolchain_type}"
+    	if [ "x${cpu_target_names[${cpu}-${toolchain_type}]}" != "x" ]; then
+	        target_name="${cpu_target_names[${cpu}-${toolchain_type}]}"
+	    fi
 
-	echo "@@@ ${cpu} @@@"
-	echo "Target:${target_name}"
-	echo "Prefix:${prefix}"
-	echo "BuildDir:${build_dir}"
-	echo "SourceDir:${src_dir}"
+	    echo "@@@ ${cpu} @@@"
+	    echo "Target:${target_name}"
+	    echo "Prefix:${prefix}"
+	    echo "BuildDir:${build_dir}"
+	    echo "SourceDir:${src_dir}"
 
-	export PATH="${prefix}/bin:${orig_path}"
+	    export PATH="${prefix}/bin:${orig_path}"
 
-	build_qemu  \
-	    "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	    build_qemu  \
+	        "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 
-	cross_binutils \
-	     "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
-	cross_gcc_stage1 \
-	     "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
-	cross_newlib "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
-	cross_gcc_elf_final \
-	    "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
-	cross_gdb "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	    cross_binutils \
+	         "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	    cross_gcc_stage1 \
+	         "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	    cross_newlib "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	    cross_gcc_elf_final \
+	        "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	    cross_gdb "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 
-	generate_module_file \
-	    "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	    generate_module_file \
+	        "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 
-	generate_vscode_file \
-	    "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
+	    generate_vscode_file \
+	        "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 
 
 	#
 	# 一時ディレクトリを削除
 	#
-	if [ -f "${build_dir}" ]; then
-	    rm -fr "${build_dir}"
-	fi
+	    if [ -f "${build_dir}" ]; then
+	        rm -fr "${build_dir}"
+	    fi
 
-	if [ -f "${src_dir}" ]; then
-	    rm -fr "${src_dir}"
-	fi
+	    if [ -f "${src_dir}" ]; then
+	        rm -fr "${src_dir}"
+	    fi
 
-	export PATH="${orig_path}"
+	    export PATH="${orig_path}"
     done
 
     #
@@ -1498,7 +1496,7 @@ main(){
 # HOS development environment
 #
 if [ -f ${SHELL_INIT_DIR}/bash ]; then
-   source ${SHELL_INIT_DIR}/bash
+    source ${SHELL_INIT_DIR}/bash
 fi
 #
 # set prompt
