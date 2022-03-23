@@ -10,7 +10,7 @@
 	       "GDB_COMMAND":"__GCC_ARCH__gdb",
 	       "QEMU":"__QEMU__",
 	       "QEMU_OPTS":"__QEMU_OPTS__"},
-	"cwd": "${workspaceFolder}/__HOS_USER_PROGRAM_DIR__"
+	"cwd": "__HOS_HOME_DIR__/__HOS_USER_PROGRAM_DIR__"
     },
     "tasks": [
         {

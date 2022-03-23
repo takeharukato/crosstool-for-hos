@@ -1108,6 +1108,7 @@ generate_vscode_file_one(){
 	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
 	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
 	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
+        -e "s|__HOS_HOME_DIR__|${DEVLOPER_HOME}|g" \
 	    -e "s|__HOS_USER_PROGRAM_DIR__|${prog_dir}|g" \
 	    -e "s|__HOS_USER_PROGRAM_FILE__|${prog_file}|g" \
 	> "${outfile}"
