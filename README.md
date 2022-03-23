@@ -476,7 +476,7 @@ c:\Users\hosWindows\vscodeEnv\riscv>
 
 #### .vscode/tasks.jsonの修正点
 
-- キー`"cwd"` の値を上記`"QEMU_KERNEL_OPT"`に設定したファイルのディレクトリ(デバッガ起動時のディレクトリ)である`/home/hos/hos-v4a/sample/riscv/virt/gcc`に設定
+- キー`"cwd"` の値をデバッガ起動時のディレクトリである`/home/hos/hos-v4a/sample/riscv/virt/gcc`に設定
 
 修正内容のdiffは以下のようになります。
 
@@ -653,13 +653,11 @@ arm-softmmu,arm-linux-user
 #### qemu_cpus
 
 TARGET\_CPUSに記述したCPU名をキーに, QEmuのcpu名を取り出すための連想配列です。
-QEmuのシステムシミュレータのコマンド名をEnvironment Modules/Lmodの環境
-変数に設定するために使用しています。
+QEmuのシステムシミュレータのコマンド名をEnvironment Modules/Lmodの環境変数に設定するために使用しています。
 テストの自動化を行うために本変数を導入しています。
-将来的には, qemu\_targetsを廃止し, qemu_cpusから得たCPU名からQEmuターゲッ
-トを指定するようにする予定です。
+将来的には, qemu\_targetsを廃止し, qemu_cpusから得たCPU名からQEmuターゲットを指定するようにする予定です。
 
-記述例: ハードウエアFPUを使用するArm(armhw)のQEmuのCPU名をarmに設定す
+記述例: ハードウエアFPUを使用するArm(armhw)のQEmuのCPU名をarmに設定する場合は以下のように記載します。
 
 ```shell
 ["armhw"]="arm"
@@ -669,10 +667,10 @@ QEmuのシステムシミュレータのコマンド名をEnvironment Modules/Lm
 
 TARGET\_CPUSに記述したCPU名をキーに, QEmuの起動オプションを取り出すための連想配列です。
 
-記述例: riscv64用のQEmu起動オプションを
+記述例: riscv64用のQEmu起動オプションを`-bios none -machine virt -m 32M -serial mon:stdio -nographic -kernel sampledbg.elf`に設定する場合は以下のように記載します。
 
 ```shell
-["armhw"]="arm"
+["riscv64"]="-bios none -machine virt -m 32M -serial mon:stdio -nographic -kernel sampledbg.elf"
 ```
 
 #### cpu_target_names
@@ -695,14 +693,11 @@ arm-eabihfに設定します。
 
 #### cpu_target_cflags
 
-gccのランタイムやlibcを構築する際のCコンパイラフラグ(cflags)を指定する
-ための連想配列です。
+gccのランタイムやlibcを構築する際のCコンパイラフラグ(cflags)を指定するための連想配列です。
 
 TARGET_CPUSに記述した`CPU名-elf`をキーに, cflagsの設定値を取り出します。
 
-H8/300Hなどランタイムライブラリコンパイル時にオプションと
-HOSのコンパイルオプションとの不一致によるバイナリ生成失敗を
-回避するために導入しています。
+H8/300Hなどランタイムライブラリコンパイル時にオプションとHOSのコンパイルオプションとの不一致によるバイナリ生成失敗を回避するために導入しています。
 
 記述例: H8/300用のコードを生成するようにclagsに`-mh`を設定します。
 
