@@ -52,7 +52,16 @@
             "problemMatcher": [
                 "$gcc"
             ],
-            "dependsOn": ["DistClean"]
+            "dependsOn": ["MostlyClean"]
+        },
+        {
+            "label": "CleanDebugBuild",
+            "type": "shell",
+            "command": ["env KERNEL_DEBUG=Yes DEBUG=Yes make;"],
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "dependsOn": ["MostlyClean"]
         },
         {
             "label": "LaunchQEmu",
