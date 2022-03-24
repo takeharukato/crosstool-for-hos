@@ -1360,6 +1360,8 @@ prepare(){
 
 	apt install -y sudo
 
+	apt install -y emacs vim nano
+
 	apt install -y language-pack-ja-base language-pack-ja
 
 	apt install -y git ninja-build python3 python3-dev swig
