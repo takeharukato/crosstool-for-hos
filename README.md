@@ -567,6 +567,7 @@ forkしたリポジトリで実行する場合, 以下の事前準備が必要�
 - `clean-images` ローカル環境のコンテナイメージを削除します。
 - `build-each` 各CPU向けのコンテナイメージを作成します。
 - `build-and-push-each` 各CPU向けのコンテナイメージを作成し, GitHub Container Registryに登録します(パーソナルトークンを記載したregistry/ghcr.txtと環境変数`GITHUB_USER`にパーソナルトークンに対応したGitHubアカウント名を設定する必要があります)
+- `release`  コンテナ内でコンパイラを作成するためのDockerfileと`VSCode`の設定ファイルを生成します。
 
 ### スクリプトの修正
 
