@@ -6,7 +6,9 @@
 #
 
 .PHONY: release build build-each run clean clean-images dist-clean prepare \
-	clean-workdir build-and-push-each
+	clean-workdir build-and-push-each gen-vscode-settings gen-container-dockerfile
+
+TOP_DIR=.
 
 #ターゲットCPU
 TARGET_CPUS ?= sh2 h8300 i386 riscv32 riscv64 mips mipsel microblaze microblazeel arm armhw
@@ -55,13 +57,17 @@ prepare: clean-workdir
 	@cp -a docker/vscode workdir
 	@cp docker/scripts/*.sh workdir/scripts
 
+gen-vscode-settings:
+	${TOP_DIR}/vscode/scripts/gen-vscode-files.sh
 
-release:
+gen-container-dockerfile:
 	cat docker/Dockerfile | \
 	sed \
 	-e 's|# __TARGET_CPU_ENV_LINE__|ENV TARGET_CPUS="__REPLACE_TARGET_CPUS__"|g'  \
 	-e 's|# __TARGET_IMAGENAME_LINE__|ENV THIS_IMAGE_NAME="__REPLACE_IMAGE_NAME__"|g' | \
 	tee templates/Dockerfiles/Dockerfile.tmpl
+
+release: gen-vscode-settings gen-container-dockerfile
 
 build: prepare
 	@if [ "x${BUILD_CPU}" != "x" ]; then \
