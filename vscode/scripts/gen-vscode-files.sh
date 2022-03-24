@@ -150,6 +150,23 @@ board_list=( \
 		 "armhw:lpc2000:sample/arm/lpc2000/gcc:sampledbg.out" \
 	   )
 
+
+#
+# イメージファイル中のCPU名
+#
+declare -A container_image_cpus=(
+    ["sh2"]="sh2"
+    ["h8300"]="h8300"
+    ["i386"]="i386"
+    ["riscv32"]="riscv"
+    ["riscv64"]="riscv"
+    ["mips"]="mips"
+    ["mipsel"]="mips"
+    ["microblaze"]="microblaze"
+    ["microblazeel"]="microblaze"
+    ["arm"]="arm"
+    ["armhw"]="arm"
+    )
 #
 # HOSソースコード展開名
 #
@@ -159,6 +176,12 @@ MKCROSS_HOS_SRCDIR="hos-v4a"
 # リモートGDB接続先ポート
 #
 MKCROSS_REMOTE_GDB_PORT=1234
+
+#
+# イメージファイルGitHubオーナ名
+#
+MKCROSS_GITHUB_REPO_OWNER="takeharukato"
+
 ## -- 動作設定関連変数のおわり --
 
 #
@@ -336,12 +359,20 @@ generate_vscode_file_one(){
     local prog_dir="$8"
     local prog_file="$9"
     local qemu_cmd
+    local this_image_name
+    local image_cpu
 
     echo "@@@ Generate: ${outfile} @@@"
 
     if [ "x${qemu_cpu}" != "x" ]; then
 	    qemu_cmd="qemu-system-${qemu_cpu}"
     fi
+
+    image_cpu="${cpu}"
+    if [ "x${container_image_cpus[${cpu}]}" != "x" ]; then
+	image_cpu="${container_image_cpus[${cpu}]}"
+    fi
+    this_image_name="ghcr.io/${MKCROSS_GITHUB_REPO_OWNER}/crosstool-for-hos-${image_cpu}:latest"
 
     rm -f "${outfile}"
     cat "${infile}" |\
@@ -352,8 +383,8 @@ generate_vscode_file_one(){
 	    -e "s|__QEMU__|${qemu_cmd}|g" \
 	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
 	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${THIS_IMAGE_NAME}|g" \
-        -e "s|__HOS_HOME_DIR__|${DEVLOPER_HOME}|g" \
+	    -e "s|__CONTAINER_IMAGE__|${this_image_name}|g" \
+            -e "s|__HOS_HOME_DIR__|${DEVLOPER_HOME}|g" \
 	    -e "s|__HOS_USER_PROGRAM_DIR__|${prog_dir}|g" \
 	    -e "s|__HOS_USER_PROGRAM_FILE__|${prog_file}|g" \
 	> "${outfile}"
