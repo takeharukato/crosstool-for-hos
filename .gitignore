@@ -3,6 +3,7 @@ cache/
 log/
 .*
 !.gitignore
+!.github
 !.mailmap
 
 *.class
