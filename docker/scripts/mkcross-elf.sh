@@ -1484,6 +1484,7 @@ main(){
 	# 開発者ユーザを作成する
 	#
 	echo "@@@ Create User @@@"
+	groupadd -g "${DEVLOPER_GID}" "${DEVLOPER_NAME}"
 	adduser                                             \
 	        -q                                          \
 		--uid "${DEVLOPER_UID}"                     \
