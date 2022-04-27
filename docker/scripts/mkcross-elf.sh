@@ -185,7 +185,13 @@ LMOD_MODULE_DIR="${CROSS_PREFIX}/lmod/modules"
 SHELL_INIT_DIR="${CROSS_PREFIX}/etc/shell/init"
 # Hos開発ユーザ名
 DEVLOPER_NAME="hos"
-# Hos開発ディレクトリ
+# Hos開発者ユーザID
+DEVLOPER_UID=2000
+# Hos開発者グループID
+DEVLOPER_GID=2000
+# Hos開発者シェル
+DEVLOPER_SHELL="/bin/bash"
+# Hos開発者ホームディレクトリ
 DEVLOPER_HOME="/home/${DEVLOPER_NAME}"
 
 # コンパイル対象CPUの配列
@@ -1479,10 +1485,12 @@ main(){
 	#
 	echo "@@@ Create User @@@"
 	adduser                                             \
-		-q                                          \
+	        -q                                          \
+		--uid "${DEVLOPER_UID}"                     \
+		--gid "${DEVLOPER_GID}"                     \
+		--shell "${DEVLOPER_SHELL}"                 \
 		--home "${DEVLOPER_HOME}"                   \
 		--gecos "Hyper Operating System Developer"  \
-		--disabled-login                            \
 		"${DEVLOPER_NAME}"
 
 	# sudoerに追加
@@ -1512,7 +1520,15 @@ export PS1="[\u@\h \W] "
 export LANG="ja_JP.UTF-8"
 EOF
 	fi
-
+	#
+	# sshディレクトリ
+	#
+	mkdir -p "${DEVLOPER_HOME}/.ssh"
+	chmod 700 "${DEVLOPER_HOME}/.ssh"
+	chown "${DEVLOPER_UID}:${DEVLOPER_GID}" "${DEVLOPER_HOME}/.ssh"
+	touch "${DEVLOPER_HOME}/.ssh/authorized_keys"
+	chmod 600 "${DEVLOPER_HOME}/.ssh/authorized_keys"
+	chown "${DEVLOPER_UID}:${DEVLOPER_GID}" "${DEVLOPER_HOME}/.ssh/authorized_keys"
 	echo "Complete"
 }
 

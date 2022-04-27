@@ -180,7 +180,16 @@ $ docker run -v /etc/group:/etc/group:ro -v /etc/passwd:/etc/passwd:ro
 
 #### HOS開発者ユーザ`hos`を使用した開発
 
-Hyper Operating System の開発作業に使うように開発者ユーザ`hos`を作ってあります。
+Hyper Operating System の開発作業に使うように開発者ユーザ`hos`を作ってあります。開発者ユーザ`hos`作成時の設定パラメタ値は以下の通りです。
+
+| 項目 | 設定値 |
+| ---  | --- |
+| ユーザ名 | hos |
+| ユーザID | 2000 |
+| グループID | 2000 |
+| ホームディレクトリ | /home/hos |
+| sudoコマンド実行時にパスワード入力 | 不要 |
+| シェル | /bin/bash |
 
 コンテナ内に(docker run などで)入った後, `su - hos`を実行することで, `hos`ユーザ権限での作業が可能になります。
 
