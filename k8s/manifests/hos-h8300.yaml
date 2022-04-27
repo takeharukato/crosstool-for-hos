@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hos-h8300
+spec:
+  securityContext:
+    runAsUser: 2000
+    runAsGroup: 2000
+    fsGroup: 2000
+  volumes:
+  - name: source-storage
+    emptyDir: {}
+  containers:
+  - name: hos-h8300
+    image: ghcr.io/takeharukato/crosstool-for-hos-h8300:latest
+    imagePullPolicy: Always
+    volumeMounts:
+    - name: source-storage
+      mountPath: /home/hos/src
+    stdin: true
+    tty: true
+    env:
+    ports:
+    workingDir: /home/hos

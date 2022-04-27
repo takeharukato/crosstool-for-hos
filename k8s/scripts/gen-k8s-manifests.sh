@@ -2,7 +2,7 @@
 #
 # -*- coding:utf-8 mode: bash-mode -*-
 #
-# Hyper Operating System用クロス開発環境構築スクリプト (Visual Studio Code)
+# Hyper Operating System用クロス開発環境構築スクリプト (Kubernetesマニフェストファイル)
 #
 # Copyright (C) 1998-2022 by Project HOS
 # http://sourceforge.jp/projects/hos/
@@ -192,15 +192,6 @@ MKCROSS_SCRIPTS_DIR=$(cd $(dirname $0);pwd)
 # TOPディレクトリ
 #
 MKCROSS_TOP_DIR="${MKCROSS_SCRIPTS_DIR}/../.."
-#
-#vscodeのテンプレート
-#
-MKCROSS_VSCODE_TEMPL_DIR="${MKCROSS_TOP_DIR}/docker/vscode"
-
-#
-#vscodeの設定ファイル出力先
-#
-MKCROSS_VSCODE_OUTPUT_DIR="${MKCROSS_TOP_DIR}/vscode/settings"
 
 #
 #インストール先
@@ -212,7 +203,13 @@ LMOD_MODULE_DIR="${CROSS_PREFIX}/lmod/modules"
 SHELL_INIT_DIR="${CROSS_PREFIX}/etc/shell/init"
 # Hos開発ユーザ名
 DEVLOPER_NAME="hos"
-# Hos開発ディレクトリ
+# Hos開発者ユーザID
+DEVLOPER_UID=2000
+# Hos開発者グループID
+DEVLOPER_GID=2000
+# Hos開発者シェル
+DEVLOPER_SHELL="/bin/bash"
+# Hos開発者ホームディレクトリ
 DEVLOPER_HOME="/home/${DEVLOPER_NAME}"
 
 # コンパイル対象CPUの配列
@@ -220,7 +217,10 @@ targets=(`echo ${TARGET_CPUS}`)
 
 # コンパイル作業のトップディレクトリ
 TOP_DIR=`pwd`
-
+# k8s 関連ファイル
+MKCROSS_K8S_DIR="${MKCROSS_TOP_DIR}/k8s"
+# k8s マニュフェストファイル
+K8S_MANIFESTS_DIR="${MKCROSS_K8S_DIR}/manifests"
 # ダウンロードアーカイブ格納ディレクトリ
 DOWNLOADS_DIR=${TOP_DIR}/downloads
 
@@ -345,28 +345,22 @@ download_archives(){
 }
 
 
+
 #
-# generate_vscode_file_one 入力ファイル 出力ファイル ターゲットCPU ターゲット名 プレフィクス QEMUのCPU名 QEMUのオプション ユーザプログラムディレクトリ ユーザプログラムファイル
+# generate_k8s_manifest_file ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
 #
-generate_vscode_file_one(){
-    local infile="$1"
-    local outfile="$2"
-    local cpu="$3"
-    local target="$4"
-    local prefix="$5"
-    local qemu_cpu="$6"
-    local qemu_opt="$7"
-    local prog_dir="$8"
-    local prog_file="$9"
-    local qemu_cmd
-    local this_image_name
+generate_k8s_manifest_file(){
+    local cpu="$1"
+    local target="$2"
+    local prefix="$3"
+    local target_var
     local image_cpu
+    local this_image_name
 
-    echo "@@@ Generate: ${outfile} @@@"
+    target_var=`echo ${target}|sed -e 's|-|_|g'`
 
-    if [ "x${qemu_cpu}" != "x" ]; then
-	    qemu_cmd="qemu-system-${qemu_cpu}"
-    fi
+    qemu_cpu="${qemu_cpus[${cpu}]}"
+    qemu_opt="${qemu_opts[${cpu}]}"
 
     image_cpu="${cpu}"
     if [ "x${container_image_cpus[${cpu}]}" != "x" ]; then
@@ -374,179 +368,12 @@ generate_vscode_file_one(){
     fi
     this_image_name="ghcr.io/${MKCROSS_GITHUB_REPO_OWNER}/crosstool-for-hos-${image_cpu}:latest"
 
-    rm -f "${outfile}"
-    cat "${infile}" |\
-	sed -e "s|__CPU__|${cpu}|g" \
-	    -e "s|__PREFIX__|${prefix}|g" \
-	    -e "s|__GCC_ARCH__|${target}-|g" \
-	    -e "s|__REMOTE_GDB_PORT__|${MKCROSS_REMOTE_GDB_PORT}|g" \
-	    -e "s|__QEMU__|${qemu_cmd}|g" \
-	    -e "s|__QEMU_OPTS__|${qemu_opt}|g" \
-	    -e "s|__HOS_REMOTE_USER__|${DEVLOPER_NAME}|g" \
-	    -e "s|__CONTAINER_IMAGE__|${this_image_name}|g" \
-            -e "s|__HOS_HOME_DIR__|${DEVLOPER_HOME}|g" \
-	    -e "s|__HOS_USER_PROGRAM_DIR__|${prog_dir}|g" \
-	    -e "s|__HOS_USER_PROGRAM_FILE__|${prog_file}|g" \
-	> "${outfile}"
-}
-
-#
-# generate_vscode_file_for_board 出力先ディレクトリ ターゲットCPU ターゲット名 プレフィクス QEMUのCPU名 QEMUのオプション ユーザプログラムディレクトリ ユーザプログラムファイル
-#
-generate_vscode_file_for_board(){
-    local outdir="$1"
-    local cpu="$2"
-    local target="$3"
-    local prefix="$4"
-    local qemu_cpu="$5"
-    local qemu_opt="$6"
-    local prog_dir="$7"
-    local prog_file="$8"
-
-    # vscodeのワークスペース定義ディレクトリ
-    vscode_workspace_dir="${MKCROSS_VSCODE_OUTPUT_DIR}/${cpu}/${outdir}"
-    # vscodeの.devcontainerディレクトリ
-    vscode_devcontainer_dir="${vscode_workspace_dir}/.devcontainer"
-    # vscodeの.vscodeディレクトリ
-    vscode_vscode_dir="${vscode_workspace_dir}/.vscode"
-
-    # vscodeのワークスペース定義ディレクトリを作成
-    mkdir -p "${vscode_workspace_dir}"
-    # vscodeの.devcontainerディレクトリを作成
-    mkdir -p "${vscode_devcontainer_dir}"
-    # vscodeの.vscodeディレクトリを作成
-    mkdir -p "${vscode_vscode_dir}"
-
-    #
-    # 共通ファイル
-    #
-    generate_vscode_file_one \
-	"${MKCROSS_VSCODE_TEMPL_DIR}/sample.code-workspace" \
-	"${vscode_workspace_dir}/hos-${cpu}.code-workspace" \
-	"${cpu}" \
-	"${target}" \
-	"${prefix}" \
-	"${qemu_cpu}" \
-	"${qemu_opt}" \
-	"${prog_dir}" \
-	"${prog_file}"
-
-    #
-    #.vscode/c_cpp_properties.json
-    #
-    generate_vscode_file_one \
-	"${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/c_cpp_properties.json" \
-	"${vscode_vscode_dir}/c_cpp_properties.json" \
-	"${cpu}" \
-	"${target}" \
-	"${prefix}" \
-	"${qemu_cpu}" \
-	"${qemu_opt}" \
-	"${prog_dir}" \
-	"${prog_file}"
-
-    #
-    #.vscode/launch.json
-    #
-    generate_vscode_file_one \
-	"${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/launch.json" \
-	"${vscode_vscode_dir}/launch.json" \
-	"${cpu}" \
-	"${target}" \
-	"${prefix}" \
-	"${qemu_cpu}" \
-	"${qemu_opt}" \
-	"${prog_dir}" \
-	"${prog_file}"
-
-    #
-    #.vscode/tasks.json
-    #
-    generate_vscode_file_one \
-	"${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/tasks.json" \
-	"${vscode_vscode_dir}/tasks.json" \
-	"${cpu}" \
-	"${target}" \
-	"${prefix}" \
-	"${qemu_cpu}" \
-	"${qemu_opt}" \
-	"${prog_dir}" \
-	"${prog_file}"
-
-    #
-    #.vscode/settings.json
-    #
-    generate_vscode_file_one \
-	"${MKCROSS_VSCODE_TEMPL_DIR}/_vscode/settings.json" \
-	"${vscode_vscode_dir}/settings.json" \
-	"${cpu}" \
-	"${target}" \
-	"${prefix}" \
-	"${qemu_cpu}" \
-	"${qemu_opt}" \
-	"${prog_dir}" \
-	"${prog_file}"
-
-    #
-    #.devcontainer/devcontainer.json
-    #
-    generate_vscode_file_one \
-	"${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/devcontainer.json" \
-	"${vscode_devcontainer_dir}/devcontainer.json" \
-	"${cpu}" \
-	"${target}" \
-	"${prefix}" \
-	"${qemu_cpu}" \
-	"${qemu_opt}" \
-	"${prog_dir}" \
-	"${prog_file}"
-
-    #
-    #.devcontainer/Dockerfile
-    #
-    generate_vscode_file_one \
-	"${MKCROSS_VSCODE_TEMPL_DIR}/_devcontainer/Dockerfile" \
-	"${vscode_devcontainer_dir}/Dockerfile" \
-	"${cpu}" \
-	"${target}" \
-	"${prefix}" \
-	"${qemu_cpu}" \
-	"${qemu_opt}" \
-	"${prog_dir}" \
-	"${prog_file}"
-}
-
-#
-# generate_vscode_file ターゲットCPU ターゲット名 プレフィクス ソース展開ディレクトリ ビルドディレクトリ ツールチェイン種別
-#
-generate_vscode_file(){
-    local cpu="$1"
-    local target="$2"
-    local prefix="$3"
-    local target_var
-    local qemu_cpu
-    local qemu_opt
-    local vscode_workspace_dir
-    local vscode_devcontainer_dir
-    local vscode_vscode_dir
-    local inf
-    local inf_array
-    local inf_cpu
-    local inf_board
-    local inf_dir
-    local inf_prog_file
-
-    target_var=`echo ${target}|sed -e 's|-|_|g'`
-
-    qemu_cpu="${qemu_cpus[${cpu}]}"
-    qemu_opt="${qemu_opts[${cpu}]}"
-
-    echo "@@@ Visual Studio Code Dev Container Settings @@@"
+    echo "@@@ Kubernetes Manifest Settings @@@"
     echo "target:${target}"
     echo "Sysroot:${sys_root}"
     echo "BuildDir:${build_dir}"
     echo "SourceDir:${src_dir}"
-    echo "ImageName:${THIS_IMAGE_NAME}"
+    echo "ImageName:${this_image_name}"
     if [ "x${qemu_cpu}" != "x" ]; then
 	    echo "QEmuCPUName:${qemu_cpu}"
     fi
@@ -554,39 +381,38 @@ generate_vscode_file(){
     if [ "x${qemu_opt}" != "x" ]; then
 	    echo "QEmuCPUName:${qemu_opt}"
     fi
-    echo "var: ${target_var}"
+    cat <<EOF|sed -e "s|__CPU_NAME__|${image_cpu}|g" \
+		  -e "s|__DEVLOPER_UID__|${DEVLOPER_UID}|g" \
+		  -e "s|__DEVLOPER_GID__|${DEVLOPER_GID}|g" \
+		  -e "s|__CONTAINER_IMAGE__|${this_image_name}|g" \
+		  -e "s|__DEVLOPER_HOME__|${DEVLOPER_HOME}|g"  \
+		  > ${K8S_MANIFESTS_DIR}/hos-${image_cpu}.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hos-__CPU_NAME__
+spec:
+  securityContext:
+    runAsUser: __DEVLOPER_UID__
+    runAsGroup: __DEVLOPER_GID__
+    fsGroup: __DEVLOPER_GID__
+  volumes:
+  - name: source-storage
+    emptyDir: {}
+  containers:
+  - name: hos-__CPU_NAME__
+    image: __CONTAINER_IMAGE__
+    imagePullPolicy: Always
+    volumeMounts:
+    - name: source-storage
+      mountPath: __DEVLOPER_HOME__/src
+    stdin: true
+    tty: true
+    env:
+    ports:
+    workingDir: __DEVLOPER_HOME__
+EOF
 
-    #
-    # 共通テンプレート
-    #
-    generate_vscode_file_for_board "common" \
-    	"${cpu}" \
-	"${target}" \
-	"${prefix}" \
-	"${qemu_cpu}" \
-	"${qemu_opt}" \
-	"__HOS_USER_PROGRAM_DIR__" \
-	"__HOS_USER_PROGRAM_FILE__"
-
-    for inf in ${board_list[@]}
-    do
-    	inf_array=($(echo "${inf}" | tr ":" " "))
-    	inf_cpu=${inf_array[0]}
-    	inf_board=${inf_array[1]}
-    	inf_dir=${inf_array[2]}
-    	inf_prog_file=${inf_array[3]}
-	if [ "${inf_cpu}" = "${cpu}" ]; then
-	        echo "@@@ board:${inf_board} dir:${inf_dir} @@@"
-	        generate_vscode_file_for_board "${inf_board}" \
-    					       "${cpu}" \
-					       "${target}" \
-					       "${prefix}" \
-					       "${qemu_cpu}" \
-					       "${qemu_opt}" \
-					       "${MKCROSS_HOS_SRCDIR}/${inf_dir}" \
-					       "${inf_prog_file}"
-    	fi
-    done
 
 
 }
@@ -627,7 +453,7 @@ main(){
 	    echo "BuildDir:${build_dir}"
 	    echo "SourceDir:${src_dir}"
 
-	    generate_vscode_file \
+	    generate_k8s_manifest_file \
 	        "${cpu}" "${target_name}" "${prefix}" "${src_dir}" "${build_dir}" "${toolchain_type}"
 
 

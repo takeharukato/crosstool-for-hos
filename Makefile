@@ -6,7 +6,8 @@
 #
 
 .PHONY: release build build-each run clean clean-images dist-clean prepare \
-	clean-workdir build-and-push-each gen-vscode-settings gen-container-dockerfile
+	clean-workdir build-and-push-each gen-vscode-settings gen-container-dockerfile \
+	gen-k8s-settings
 
 TOP_DIR=.
 
@@ -60,6 +61,9 @@ prepare: clean-workdir
 gen-vscode-settings:
 	${TOP_DIR}/vscode/scripts/gen-vscode-files.sh
 
+gen-k8s-settings:
+	${TOP_DIR}/k8s/scripts/gen-k8s-manifests.sh
+
 gen-container-dockerfile:
 	cat docker/Dockerfile | \
 	sed \
@@ -67,7 +71,7 @@ gen-container-dockerfile:
 	-e 's|# __TARGET_IMAGENAME_LINE__|ENV THIS_IMAGE_NAME="__REPLACE_IMAGE_NAME__"|g' | \
 	tee templates/Dockerfiles/Dockerfile.tmpl
 
-release: gen-vscode-settings gen-container-dockerfile
+release: gen-vscode-settings gen-k8s-settings gen-container-dockerfile
 
 build: prepare
 	@if [ "x${BUILD_CPU}" != "x" ]; then \
